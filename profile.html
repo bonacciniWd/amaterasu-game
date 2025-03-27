@@ -1,0 +1,1239 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <title>Amaterasu - Perfil</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥢</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+  
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+  
+  <style>
+    :root {
+      --primary-color: #ff7e00;
+      --secondary-color: #a00;
+      --dark-color: #111;
+      --light-color: #fff;
+      --accent-color: #700;
+      --border-color: rgba(255, 255, 255, 0.1);
+      --card-bg: rgba(0, 0, 0, 0.7);
+      --hover-color: rgba(255, 126, 0, 0.2);
+      --shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      background-image: url('./src/images/fundo.webp');
+      background-position: center;
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      font-family: 'Noto Sans JP', sans-serif;
+      color: var(--light-color);
+      line-height: 1.6;
+      position: relative;
+    }
+    
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, 
+        rgba(0, 0, 0, 0.6),
+        rgba(139, 0, 0, 0.4),
+        rgba(0, 0, 0, 0.6)
+      );
+      z-index: -1;
+      backdrop-filter: blur(2px);
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    
+    h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 2.5rem;
+      text-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+      margin-bottom: 10px;
+    }
+    
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: bold;
+      margin-top: 10px;
+      transition: all 0.3s;
+    }
+    
+    .back-link:hover {
+      transform: translateX(-5px);
+    }
+    
+    .back-link span {
+      margin-right: 8px;
+      font-size: 1.5rem;
+    }
+    
+    /* Card principal */
+    .profile-card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border-color);
+      margin-bottom: 30px;
+    }
+    
+    .profile-header {
+      display: flex;
+      align-items: center;
+      padding: 30px;
+      background: rgba(0, 0, 0, 0.3);
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, var(--accent-color), var(--secondary-color));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      margin-right: 30px;
+      border: 3px solid var(--primary-color);
+      box-shadow: 0 0 20px rgba(255, 126, 0, 0.3);
+      flex-shrink: 0;
+    }
+    
+    .profile-info {
+      flex-grow: 1;
+    }
+    
+    .profile-name {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .edit-btn {
+      background: transparent;
+      border: 1px solid var(--primary-color);
+      color: var(--primary-color);
+      border-radius: 20px;
+      padding: 5px 15px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      margin-left: 15px;
+      transition: all 0.3s;
+    }
+    
+    .edit-btn:hover {
+      background: var(--hover-color);
+      transform: translateY(-2px);
+    }
+    
+    .profile-email {
+      color: #aaa;
+      font-size: 1rem;
+      margin-bottom: 15px;
+    }
+    
+    .stats-container {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    
+    .stat-card {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 15px 20px;
+      flex-grow: 1;
+      min-width: 150px;
+      border: 1px solid var(--border-color);
+      transition: all 0.3s;
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+      background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .stat-title {
+      font-size: 0.9rem;
+      color: #ddd;
+      margin-bottom: 5px;
+    }
+    
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+    
+    /* Conquistas */
+    .achievements-section {
+      margin-top: 30px;
+      padding: 30px;
+    }
+    
+    .section-title {
+      font-size: 1.8rem;
+      margin-bottom: 30px;
+      color: var(--primary-color);
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 15px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .section-title::before {
+      content: '🏆';
+      margin-right: 15px;
+      font-size: 1.5em;
+    }
+    
+    .achievements-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+      max-height: 500px;
+      overflow-y: auto;
+      padding-right: 15px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--primary-color) rgba(0, 0, 0, 0.2);
+    }
+    
+    .achievements-grid::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    .achievements-grid::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 10px;
+    }
+    
+    .achievements-grid::-webkit-scrollbar-thumb {
+      background-color: var(--primary-color);
+      border-radius: 10px;
+    }
+    
+    .achievement {
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 15px;
+      padding: 20px;
+      text-align: center;
+      border: 1px solid var(--border-color);
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .achievement:not(.unlocked) {
+      filter: grayscale(1);
+      opacity: 0.6;
+    }
+    
+    .achievement:hover {
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .achievement::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+      transform: scaleX(0);
+      transition: transform 0.5s;
+    }
+    
+    .achievement:hover::after {
+      transform: scaleX(1);
+    }
+    
+    .achievement.unlocked::before {
+      content: '✓';
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: var(--primary-color);
+      color: var(--dark-color);
+      width: 25px;
+      height: 25px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 0.8rem;
+    }
+    
+    .achievement-icon {
+      margin-bottom: 15px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .badge-image {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      transition: all 0.3s;
+      border-radius: 50%;
+    }
+    
+    .achievement.unlocked .badge-image {
+      filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.7));
+    }
+    
+    .achievement-name {
+      font-weight: bold;
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+    }
+    
+    .achievement-desc {
+      font-size: 0.9rem;
+      color: #aaa;
+    }
+    
+    /* Loading */
+    .loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      color: #aaa;
+    }
+    
+    .loader {
+      width: 50px;
+      height: 50px;
+      border: 5px solid rgba(255, 255, 255, 0.1);
+      border-top: 5px solid var(--primary-color);
+      border-radius: 50%;
+      margin-bottom: 20px;
+      animation: spin 1.5s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .no-data {
+      text-align: center;
+      padding: 40px 20px;
+      color: #999;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 15px;
+      border: 1px dashed var(--border-color);
+      margin: 20px 0;
+    }
+    
+    /* Modal para edição de nome */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(5px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .modal-content {
+      background: rgba(20, 20, 20, 0.95);
+      border-radius: 20px;
+      padding: 30px;
+      width: 100%;
+      max-width: 400px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      transform: translateY(20px);
+      animation: modal-in 0.3s forwards;
+    }
+    
+    @keyframes modal-in {
+      to { transform: translateY(0); }
+    }
+    
+    .modal-title {
+      color: var(--primary-color);
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 1.5rem;
+      position: relative;
+      padding-bottom: 15px;
+    }
+    
+    .modal-title::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 30%;
+      right: 30%;
+      height: 2px;
+      background: var(--primary-color);
+    }
+    
+    .form-group {
+      margin-bottom: 25px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 10px;
+      color: #ddd;
+      font-size: 0.9rem;
+    }
+    
+    .form-group input {
+      width: 100%;
+      padding: 15px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(0, 0, 0, 0.3);
+      color: white;
+      font-size: 1rem;
+      transition: all 0.3s;
+    }
+    
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 10px rgba(255, 126, 0, 0.3);
+    }
+    
+    .modal-buttons {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+    }
+    
+    .btn {
+      padding: 12px 20px;
+      border-radius: 10px;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 1rem;
+      flex: 1;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(45deg, var(--accent-color), var(--secondary-color));
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .btn-primary:hover {
+      background: linear-gradient(45deg, var(--secondary-color), #c00);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(170, 0, 0, 0.3);
+    }
+    
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-3px);
+    }
+    
+    /* Server offline message */
+    .server-offline-message {
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 15px 20px;
+      border-radius: 10px;
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+      max-width: 350px;
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(255, 0, 0, 0.3);
+      animation: fade-in 0.5s forwards;
+    }
+    
+    @keyframes fade-in {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .offline-icon {
+      font-size: 2rem;
+    }
+    
+    /* Responsividade */
+    @media (max-width: 768px) {
+      .profile-header {
+        flex-direction: column;
+        text-align: center;
+        padding: 20px;
+      }
+      
+      .avatar {
+        margin-right: 0;
+        margin-bottom: 20px;
+      }
+      
+      .profile-name {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .edit-btn {
+        margin-left: 0;
+        margin-top: 10px;
+      }
+      
+      .achievements-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      }
+      
+      .section-title {
+        font-size: 1.5rem;
+      }
+    }
+    
+    @media (max-width: 500px) {
+      .container {
+        padding: 10px;
+      }
+      
+      h1 {
+        font-size: 1.8rem;
+      }
+      
+      .avatar {
+        width: 80px;
+        height: 80px;
+        font-size: 2rem;
+      }
+      
+      .profile-name {
+        font-size: 1.5rem;
+      }
+      
+      .stat-card {
+        padding: 10px 15px;
+      }
+      
+      .stat-value {
+        font-size: 1.4rem;
+      }
+      
+      .achievements-section {
+        padding: 20px 15px;
+      }
+      
+      .achievements-grid {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 15px;
+      }
+      
+      .achievement {
+        padding: 15px;
+      }
+      
+      .achievement-icon {
+        font-size: 2.5rem;
+      }
+      
+      .achievement-name {
+        font-size: 1rem;
+      }
+    }
+    
+    /* Estilos para a seleção de avatar */
+    .avatar-selection {
+      margin-top: 10px;
+    }
+    
+    .avatar-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+    }
+    
+    .avatar-option {
+      border-radius: 50%;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 3px solid transparent;
+      width: 60px;
+      height: 60px;
+      margin: 0 auto;
+    }
+    
+    .avatar-option img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .avatar-option:hover {
+      transform: scale(1.1);
+    }
+    
+    .avatar-option.selected {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 15px rgba(255, 126, 0, 0.5);
+    }
+    
+    /* Estilo para avatar com imagem */
+    .avatar-image {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    
+    /* Notificação de conquista */
+    .achievement-notification {
+      position: fixed;
+      bottom: -100px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.9);
+      border: 1px solid var(--primary-color);
+      border-radius: 15px;
+      padding: 15px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      width: 300px;
+      max-width: 90vw;
+      transition: transform 0.5s ease;
+      z-index: 9999;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+    }
+    
+    .achievement-notification.show {
+      transform: translateY(-120px);
+    }
+    
+    .achievement-notification-icon {
+      flex-shrink: 0;
+      width: 60px;
+      height: 60px;
+    }
+    
+    .achievement-notification-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    
+    .achievement-notification-content {
+      flex-grow: 1;
+    }
+    
+    .achievement-notification-title {
+      color: gold;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    
+    .achievement-notification-name {
+      font-weight: bold;
+      color: white;
+      margin-bottom: 3px;
+    }
+    
+    .achievement-notification-desc {
+      font-size: 0.8em;
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+    <h1>Meu Perfil</h1>
+      <a href="index.html" class="back-link"><span>←</span> Voltar ao Jogo</a>
+    </header>
+    
+    <main>
+      <div class="profile-card">
+        <!-- Loading do perfil -->
+      <div id="loadingProfile" class="loading">
+        <div class="loader"></div>
+          <p>Carregando seu perfil...</p>
+      </div>
+      
+        <!-- Conteúdo do perfil -->
+      <div id="profileContent" style="display: none;">
+          <div class="profile-header">
+            <div id="profileAvatar" class="avatar">N</div>
+            
+            <div class="profile-info">
+            <div class="profile-name">
+              <span id="profileName">Ninja</span>
+                <button id="editNameBtn" class="edit-btn">Editar Perfil</button>
+            </div>
+            <div id="profileEmail" class="profile-email">email@exemplo.com</div>
+              
+              <div class="stats-container">
+                <div class="stat-card">
+                  <div class="stat-title">Melhor Score</div>
+                  <div id="bestScore" class="stat-value">0</div>
+              </div>
+                <div class="stat-card">
+                  <div class="stat-title">Ranking</div>
+                  <div id="rankingPosition" class="stat-value">-</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="achievements-section">
+            <h2 class="section-title">Conquistas</h2>
+          
+            <!-- Loading das conquistas -->
+          <div id="loadingAchievements" class="loading">
+            <div class="loader"></div>
+              <p>Carregando suas conquistas...</p>
+          </div>
+          
+            <!-- Conteúdo das conquistas -->
+            <div id="achievementsContent" style="display: none;">
+            <div id="achievementsGrid" class="achievements-grid">
+              <!-- Será preenchido via JavaScript -->
+            </div>
+            
+            <div id="noAchievements" class="no-data" style="display: none;">
+                <p>Você ainda não desbloqueou nenhuma conquista.</p>
+                <p>Continue jogando para ganhar conquistas!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </main>
+  </div>
+  
+  <!-- Modal de edição de nome -->
+  <div id="editNameModal" class="modal">
+    <div class="modal-content">
+      <h3 class="modal-title">Editar Perfil</h3>
+      
+      <div class="form-group">
+        <label for="newName">Seu nome ou apelido:</label>
+        <input type="text" id="newName" maxlength="15" placeholder="Digite seu nome">
+      </div>
+      
+      <div class="form-group">
+        <label>Escolha seu avatar:</label>
+        <div class="avatar-selection">
+          <div class="avatar-grid">
+            <div class="avatar-option" data-avatar="avatar-1.webp">
+              <img src="./src/images/avatars/avatar-1.webp" alt="Avatar 1">
+            </div>
+            <div class="avatar-option" data-avatar="avatar-2.webp">
+              <img src="./src/images/avatars/avatar-2.webp" alt="Avatar 2">
+            </div>
+            <div class="avatar-option" data-avatar="avatar-3.webp">
+              <img src="./src/images/avatars/avatar-3.webp" alt="Avatar 3">
+            </div>
+            <div class="avatar-option" data-avatar="avatar-4.webp">
+              <img src="./src/images/avatars/avatar-4.webp" alt="Avatar 4">
+            </div>
+            <div class="avatar-option" data-avatar="avatar-5.webp">
+              <img src="./src/images/avatars/avatar-5.webp" alt="Avatar 5">
+            </div>
+            <div class="avatar-option" data-avatar="avatar-6.webp">
+              <img src="./src/images/avatars/avatar-6.webp" alt="Avatar 6">
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-buttons">
+        <button id="cancelNameEdit" class="btn btn-secondary">Cancelar</button>
+        <button id="saveNameEdit" class="btn btn-primary">Salvar</button>
+      </div>
+    </div>
+  </div>
+  
+  <script type="module">
+    import { auth, logout, getCurrentUser, onAuthStateChanged, updateProfile } from './src/js/services/firebase.js';
+    import { getUserProfile, updateUserProfile, getUserBestScore, getUserScores, checkServerStatus } from './src/js/services/api.js';
+    import { ACHIEVEMENTS, getUserAchievements, renderAchievements } from './src/js/modules/achievements.js';
+    
+    let serverIsAvailable = true;
+    
+    // Função para verificar se o servidor está disponível
+    async function checkServer() {
+      try {
+        const status = await checkServerStatus();
+        serverIsAvailable = status.online === true;
+        
+        if (!serverIsAvailable) {
+          showServerOfflineMessage();
+        }
+      } catch (error) {
+        console.error('Erro ao verificar status do servidor:', error);
+        serverIsAvailable = false;
+        showServerOfflineMessage();
+      }
+    }
+    
+    // Exibe mensagem de servidor offline
+    function showServerOfflineMessage() {
+      const messageEl = document.createElement('div');
+      messageEl.className = 'server-offline-message';
+      messageEl.innerHTML = `
+        <div class="offline-icon">📡</div>
+        <div class="offline-text">
+          <h3>Servidor indisponível</h3>
+          <p>O servidor de ranking está offline. Alguns recursos podem estar limitados.</p>
+        </div>
+      `;
+      
+      document.body.appendChild(messageEl);
+      
+      // Auto-remover após 8 segundos
+      setTimeout(() => {
+        messageEl.style.opacity = '0';
+        messageEl.style.transition = 'opacity 0.5s ease';
+        setTimeout(() => messageEl.remove(), 500);
+      }, 8000);
+    }
+    
+    // Verificar autenticação
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('Página de perfil carregada, verificando autenticação...');
+      
+      onAuthStateChanged((user) => {
+        console.log('Estado de autenticação verificado:', user);
+        
+        if (!user) {
+          console.log('Usuário não autenticado, redirecionando para login');
+          // Usuário não está logado, redirecionar para login
+          window.location.href = 'login.html';
+          return;
+        }
+        
+        console.log('Usuário autenticado, carregando perfil');
+        // Carregar perfil
+        loadUserProfile();
+      });
+    });
+    
+    // Elementos DOM
+    const profileContent = document.getElementById('profileContent');
+    const loadingProfile = document.getElementById('loadingProfile');
+    const profileName = document.getElementById('profileName');
+    const profileEmail = document.getElementById('profileEmail');
+    const profileAvatar = document.getElementById('profileAvatar');
+    const bestScore = document.getElementById('bestScore');
+    const rankingPosition = document.getElementById('rankingPosition');
+    
+    const achievementsContent = document.getElementById('achievementsContent');
+    const loadingAchievements = document.getElementById('loadingAchievements');
+    const achievementsGrid = document.getElementById('achievementsGrid');
+    const noAchievements = document.getElementById('noAchievements');
+    
+    const editNameModal = document.getElementById('editNameModal');
+    const newNameInput = document.getElementById('newName');
+    
+    // Variável para armazenar o avatar selecionado
+    let selectedAvatar = '';
+    
+    // Carregar o perfil do usuário
+    async function loadUserProfile() {
+      try {
+        // Verificar status do servidor
+        await checkServer();
+        
+        // Obter dados do usuário autenticado via Firebase
+        const user = getCurrentUser();
+        
+        if (!user) {
+          console.error('Usuário não está autenticado');
+          window.location.href = 'login.html';
+          return;
+        }
+        
+        // Exibir informações básicas do usuário do Firebase (fonte garantida)
+        profileEmail.textContent = user.email || 'Email não disponível';
+        
+        // Determinando a primeira letra para o avatar padrão (se não tiver imagem)
+        const initialLetter = (user.displayName || user.email.charAt(0)).charAt(0).toUpperCase();
+        
+        // Verificar se o usuário tem um avatar personalizado e obter o nome salvo no profile
+        try {
+          const db = firebase.database();
+          const userId = user.uid;
+          const profileRef = db.ref(`users/${userId}/profile`);
+          const profileSnapshot = await profileRef.once('value');
+          const profile = profileSnapshot.val() || {};
+          
+          // Definir o nome do usuário com prioridade para o nome salvo no profile
+          if (profile.name) {
+            profileName.textContent = profile.name;
+          } else if (user.displayName) {
+            profileName.textContent = user.displayName;
+          } else {
+            profileName.textContent = 'Ninja';
+          }
+          
+          if (profile.avatar) {
+            // Usuário tem uma imagem de avatar
+            profileAvatar.innerHTML = `<img src="./src/images/avatars/${profile.avatar}" alt="Avatar" class="avatar-image">`;
+            selectedAvatar = profile.avatar;
+          } else {
+            // Sem avatar, usar a letra inicial
+            profileAvatar.textContent = initialLetter;
+          }
+        } catch (error) {
+          console.error('Erro ao obter dados do perfil do usuário:', error);
+          profileAvatar.textContent = initialLetter;
+          profileName.textContent = user.displayName || 'Ninja';
+        }
+        
+        let bestScoreValue = 0;
+        let rankPos = '-';
+        
+        try {
+          // Tentar obter dados do perfil no servidor
+          if (serverIsAvailable) {
+        const profile = await getUserProfile();
+            console.log('Perfil obtido do servidor:', profile);
+            
+            // Verificar se os dados retornados são válidos (não são do usuário de teste)
+            if (profile && profile.userId !== 'usuario-teste' && profile.userId !== 'offline-user') {
+              // Atualizar nome apenas se for diferente do Firebase e não for o padrão
+              if (profile.name && profile.name !== 'Usuário de Teste' && profile.name !== 'Usuário Offline') {
+                profileName.textContent = profile.name;
+              }
+              
+              // Obter pontuação do perfil do servidor
+        if ((profile.stats && profile.stats.bestScore) || profile.bestScore !== undefined) {
+                bestScoreValue = profile.stats?.bestScore || profile.bestScore || 0;
+                console.log('Pontuação encontrada no perfil do servidor:', bestScoreValue);
+              }
+        } else {
+              console.warn('Perfil retornado é de usuário teste, ignorando...');
+            }
+          }
+        } catch (profileError) {
+          console.error('Erro ao obter perfil do servidor:', profileError);
+        }
+        
+        // Se não temos pontuação do servidor, tentar obter do Firebase
+        if (bestScoreValue === 0) {
+          try {
+            console.log('Buscando pontuação no Firebase...');
+            
+              const db = firebase.database();
+            const userId = user.uid;
+              
+            // 1. Verificar nas estatísticas do usuário (estrutura nova)
+            const statsRef = db.ref(`users/${userId}/stats`);
+              const statsSnapshot = await statsRef.once('value');
+              const stats = statsSnapshot.val() || {};
+              
+              if (stats && stats.bestScore) {
+              bestScoreValue = stats.bestScore;
+              console.log('Pontuação obtida das estatísticas do Firebase:', bestScoreValue);
+            } else {
+              // 2. Verificar no perfil do usuário (para compatibilidade)
+              const profileRef = db.ref(`users/${userId}/profile`);
+              const profileSnapshot = await profileRef.once('value');
+              const profile = profileSnapshot.val() || {};
+              
+              if (profile && profile.bestScore) {
+                bestScoreValue = profile.bestScore;
+                console.log('Pontuação obtida do perfil do Firebase:', bestScoreValue);
+              } else {
+                // 3. Verificar nas pontuações individuais
+                console.log('Buscando pontuações individuais no Firebase...');
+                
+                // Ler pontuações e encontrar a melhor
+                const scoresRef = db.ref(`users/${userId}/scores`).orderByChild('score').limitToLast(1);
+                const scoresSnapshot = await scoresRef.once('value');
+                
+                scoresSnapshot.forEach((childSnapshot) => {
+                  const scoreData = childSnapshot.val();
+                  if (scoreData && scoreData.score > bestScoreValue) {
+                    bestScoreValue = scoreData.score;
+                  }
+                });
+                
+                if (bestScoreValue > 0) {
+                  console.log('Pontuação obtida das pontuações individuais no Firebase:', bestScoreValue);
+                }
+              }
+            }
+            
+            // Calcular posição no ranking se temos uma pontuação
+            if (bestScoreValue > 0) {
+              rankPos = await calculateRankingPosition(bestScoreValue);
+            }
+          } catch (fbError) {
+            console.error('Erro ao buscar dados do Firebase:', fbError);
+          }
+        }
+        
+        // Atualizar exibição da pontuação
+        bestScore.textContent = bestScoreValue;
+        rankingPosition.textContent = rankPos ? `#${rankPos}` : '-';
+        
+        // Mostrar o conteúdo do perfil
+        loadingProfile.style.display = 'none';
+        profileContent.style.display = 'block';
+        
+        // Carregar conquistas
+        loadUserAchievements();
+      } catch (error) {
+        console.error('Erro ao carregar perfil:', error);
+        
+        // Exibir conteúdo mesmo com erro
+        loadingProfile.style.display = 'none';
+        profileContent.style.display = 'block';
+        
+        alert('Erro ao carregar perfil. Alguns dados podem não estar disponíveis.');
+      }
+    }
+    
+    // Função auxiliar para calcular a posição no ranking
+    async function calculateRankingPosition(score) {
+      try {
+        if (!score || typeof firebase === 'undefined' || !firebase.apps.length) {
+          return '-';
+        }
+        
+        const db = firebase.database();
+        
+        // Buscar todos os usuários com suas estatísticas
+        const usersRef = db.ref('users');
+        const usersSnapshot = await usersRef.once('value');
+        
+        // Coletar pontuações de todos os usuários
+        const allScores = [];
+        
+        usersSnapshot.forEach((userSnapshot) => {
+          const userData = userSnapshot.val();
+          if (userData && userData.stats && userData.stats.bestScore) {
+            allScores.push(userData.stats.bestScore);
+          }
+        });
+        
+        if (allScores.length === 0) {
+          return '1'; // Se não há outras pontuações, este usuário é o primeiro
+        }
+        
+        // Ordenar as pontuações (maior para menor)
+        allScores.sort((a, b) => b - a);
+        
+        // Encontrar a posição da pontuação atual
+        const position = allScores.findIndex(s => s === score) + 1;
+        
+        return position > 0 ? String(position) : '-';
+      } catch (error) {
+        console.error('Erro ao calcular posição no ranking:', error);
+        return '-';
+      }
+    }
+    
+    // Carregar conquistas do usuário
+    async function loadUserAchievements() {
+      try {
+        // Buscar pontuação do usuário para determinar conquistas
+        const userScore = parseInt(bestScore.textContent) || 0;
+        
+        // Obter conquistas com status de desbloqueio
+        const achievements = getUserAchievements(userScore);
+        
+        // Exibir conquistas
+        renderAchievements(achievementsGrid, achievements);
+        
+        // Esconder o loading e mostrar o conteúdo
+          loadingAchievements.style.display = 'none';
+          achievementsContent.style.display = 'block';
+          
+        // Se não tem conquistas desbloqueadas, mostrar mensagem
+        const hasUnlocked = achievements.some(a => a.unlocked);
+        noAchievements.style.display = hasUnlocked ? 'none' : 'block';
+        
+      } catch (error) {
+        console.error('Erro ao carregar conquistas:', error);
+        
+        // Fallback para exibição de erro
+        loadingAchievements.style.display = 'none';
+        achievementsContent.style.display = 'block';
+        noAchievements.style.display = 'block';
+        noAchievements.textContent = 'Erro ao carregar conquistas. Tente novamente mais tarde.';
+      }
+    }
+    
+    // Configurar eventos para o modal de edição de perfil
+    const saveNameBtn = document.getElementById('saveNameEdit');
+    const cancelNameBtn = document.getElementById('cancelNameEdit');
+    const avatarOptions = document.querySelectorAll('.avatar-option');
+    const editNameBtn = document.getElementById('editNameBtn');
+    
+    // Abrir modal
+    editNameBtn.addEventListener('click', () => {
+      // Preencher com nome atual
+      newNameInput.value = profileName.textContent;
+      
+      // Marcar avatar atual como selecionado, se houver
+      if (selectedAvatar) {
+        avatarOptions.forEach(option => {
+          if (option.dataset.avatar === selectedAvatar) {
+            option.classList.add('selected');
+          } else {
+            option.classList.remove('selected');
+          }
+        });
+      }
+      
+      editNameModal.style.display = 'flex';
+    });
+    
+    // Fechar modal
+    cancelNameBtn.addEventListener('click', () => {
+        editNameModal.style.display = 'none';
+    });
+    
+    // Selecionar avatar
+    avatarOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        // Remover seleção anterior
+        avatarOptions.forEach(opt => opt.classList.remove('selected'));
+        
+        // Adicionar seleção ao clicado
+        option.classList.add('selected');
+        
+        // Armazenar avatar selecionado
+        selectedAvatar = option.dataset.avatar;
+      });
+    });
+    
+    // Salvar alterações
+    saveNameBtn.addEventListener('click', async () => {
+      const newName = newNameInput.value.trim();
+      
+      if (!newName) {
+        alert('Por favor, digite um nome válido.');
+        return;
+      }
+      
+      try {
+        // Tentativa de atualizar via API
+        try {
+          if (serverIsAvailable) {
+            await updateUserProfile({ name: newName, avatar: selectedAvatar });
+            console.log('Perfil atualizado na API com sucesso');
+          }
+        } catch (apiError) {
+          console.warn('Erro ao atualizar perfil na API:', apiError);
+        }
+        
+        // Sempre atualizar no Firebase (como backup)
+        try {
+          const user = getCurrentUser();
+          if (user) {
+            // 1. Atualizar o nome de exibição no Firebase Auth
+            await updateProfile({ displayName: newName });
+            
+            // 2. Também atualizar no Realtime Database
+            const db = firebase.database();
+            const userId = user.uid;
+            
+            await db.ref(`users/${userId}/profile`).update({
+              name: newName,
+              avatar: selectedAvatar,
+              updatedAt: new Date().toISOString()
+            });
+            
+            console.log('Perfil atualizado no Firebase com sucesso');
+          }
+        } catch (fbError) {
+          console.error('Erro ao atualizar perfil no Firebase:', fbError);
+          throw fbError; // Propagar erro para tratamento externo
+        }
+        
+        // Atualizar UI
+        profileName.textContent = newName;
+        
+        if (selectedAvatar) {
+          // Atualizar avatar na UI
+          profileAvatar.innerHTML = `<img src="./src/images/avatars/${selectedAvatar}" alt="Avatar" class="avatar-image">`;
+        } else {
+          // Sem avatar, usar a letra inicial
+        const initialLetter = newName.charAt(0).toUpperCase();
+        profileAvatar.textContent = initialLetter;
+        }
+        
+        // Fechar modal
+        editNameModal.style.display = 'none';
+      } catch (error) {
+        console.error('Erro ao atualizar perfil:', error);
+        alert('Erro ao atualizar perfil. Por favor, tente novamente.');
+      }
+    });
+    
+    // Enviar formulário ao pressionar Enter
+    newNameInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        document.getElementById('saveNameEdit').click();
+      }
+    });
+  </script>
+</body>
+</html>

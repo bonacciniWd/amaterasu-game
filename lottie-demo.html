@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <title>Demonstração Lottie - Amaterasu</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥢</text></svg>">
+  <link rel="stylesheet" href="index.css">
+  
+  <!-- Adicionar Lottie para animações JSON -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.7.14/lottie.min.js"></script>
+  <!-- Adicionar link para as fontes no head -->
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+  
+  <style>
+    body {
+      background: linear-gradient(135deg, #000, #300, #000);
+      color: white;
+      font-family: 'Noto Sans JP', sans-serif;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .container {
+      text-align: center;
+      max-width: 800px;
+      padding: 20px;
+    }
+    
+    h1 {
+      font-family: 'Cinzel', serif;
+      margin-bottom: 30px;
+      color: #ff9900;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    
+    .demo-area {
+      margin: 20px 0;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+    
+    .demo-button {
+      background: linear-gradient(45deg, #700, #a00);
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 30px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: 'Noto Sans JP', sans-serif;
+    }
+    
+    .demo-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+      background: linear-gradient(45deg, #900, #c00);
+    }
+    
+    .lottie-container {
+      width: 300px;
+      height: 300px;
+      margin: 20px auto;
+      border: 2px solid gold;
+      border-radius: 15px;
+      overflow: hidden;
+      background-color: rgba(0, 0, 0, 0.6);
+    }
+    
+    .back-link {
+      margin-top: 30px;
+      color: white;
+      text-decoration: none;
+      font-size: 14px;
+      opacity: 0.8;
+      transition: opacity 0.3s;
+    }
+    
+    .back-link:hover {
+      opacity: 1;
+    }
+    
+    @media (max-width: 600px) {
+      .container {
+        padding: 15px;
+      }
+      
+      h1 {
+        font-size: 24px;
+      }
+      
+      .lottie-container {
+        width: 250px;
+        height: 250px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Demonstração de Animações Lottie</h1>
+    
+    <div class="demo-area">
+      <button id="showTreasureButton" class="demo-button">Mostrar Tesouro</button>
+      <button id="showInlineButton" class="demo-button">Exibir Animação Inline</button>
+    </div>
+    
+    <!-- Container para animação inline -->
+    <div id="inlineLottie" class="lottie-container" style="display: none;"></div>
+    
+    <a href="index.html" class="back-link">Voltar para o jogo</a>
+  </div>
+  
+  <script type="module">
+    import { createLottieModal, playLottieAnimation } from './src/js/modules/lottie.js';
+    
+    // Botão para mostrar o tesouro
+    document.getElementById('showTreasureButton').addEventListener('click', () => {
+      // Criar modal com animação Lottie
+      const treasureModal = createLottieModal('./src/images/treasure.json', {
+        width: '300px',
+        height: '350px',
+        border: '3px solid gold',
+        background: 'rgba(0, 0, 0, 0.85)',
+        closeButtonText: 'Coletar Tesouro',
+        lottieOptions: {
+          loop: true,
+          autoplay: true
+        }
+      });
+      
+      // Adicionar título ao modal
+      const title = document.createElement('h2');
+      title.textContent = 'Tesouro Encontrado!';
+      title.style.color = 'gold';
+      title.style.fontFamily = "'Cinzel', serif";
+      title.style.margin = '0 0 10px 0';
+      title.style.textShadow = '0 2px 4px rgba(0, 0, 0, 0.5)';
+      
+      // Inserir o título antes do container da animação
+      treasureModal.modalContainer.insertBefore(title, treasureModal.animationContainer);
+      
+      // Mostrar o modal
+      treasureModal.show();
+    });
+    
+    // Botão para mostrar animação inline
+    document.getElementById('showInlineButton').addEventListener('click', () => {
+      const container = document.getElementById('inlineLottie');
+      container.style.display = 'block';
+      
+      // Limpar conteúdo existente
+      container.innerHTML = '';
+      
+      // Tocar animação no container
+      playLottieAnimation('inlineLottie', './src/images/treasure.json', {
+        loop: true,
+        autoplay: true
+      });
+    });
+  </script>
+</body>
+</html> 

@@ -1,0 +1,167 @@
+{% layout none %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Amate Ninja</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      position: fixed;
+      font-family: Arial, sans-serif;
+    }
+    
+    .game-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .game-instructions {
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 10px;
+      text-align: center;
+      border-bottom: 1px solid #eaeaea;
+      z-index: 10;
+    }
+    
+    .instruction-item {
+      display: inline-block;
+      margin: 0 15px;
+      font-size: 14px;
+    }
+    
+    .instruction-item i {
+      color: #ff6b6b;
+      margin-right: 5px;
+    }
+    
+    .game-area {
+      flex: 1;
+      position: relative;
+    }
+    
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    
+    .toggle-instructions {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background-color: rgba(255, 255, 255, 0.8);
+      color: #333;
+      border: none;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      font-size: 18px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      z-index: 20;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Ocultar elementos do tema da Shopify */
+    header, 
+    .shopify-section--header,
+    #shopify-section-header,
+    .site-header,
+    nav.header__inline-menu,
+    .header,
+    .announcement-bar,
+    footer,
+    .footer,
+    #shopify-section-footer {
+      display: none !important;
+    }
+    
+    /* Garantir que o corpo da página ocupe toda a tela */
+    body.template-page,
+    main,
+    .page-width,
+    .main-content,
+    .content-for-layout {
+      padding: 0 !important;
+      margin: 0 !important;
+      max-width: 100% !important;
+      width: 100% !important;
+      height: 100% !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <div class="game-instructions" id="instructions">
+      <div class="instruction-item">
+        <i class="fas fa-gamepad"></i>
+        <strong>Como Jogar:</strong> Toque e segure para esticar o bastão
+      </div>
+      <div class="instruction-item">
+        <i class="fas fa-trophy"></i>
+        <strong>Objetivo:</strong> Avance o máximo possível
+      </div>
+      <div class="instruction-item">
+        <i class="fas fa-gift"></i>
+        <strong>Prêmio:</strong> Nível 50 = Frete grátis
+      </div>
+    </div>
+    
+    <div class="game-area">
+      <iframe src="https://amaterasu-game.vercel.app" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope" allowfullscreen></iframe>
+    </div>
+  </div>
+  
+  <button class="toggle-instructions" id="toggleBtn">
+    <i class="fas fa-chevron-up" id="toggleIcon"></i>
+  </button>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const instructionsPanel = document.getElementById('instructions');
+      const toggleBtn = document.getElementById('toggleBtn');
+      const toggleIcon = document.getElementById('toggleIcon');
+      let instructionsVisible = true;
+      
+      // Função para alternar a visibilidade das instruções
+      toggleBtn.addEventListener('click', function() {
+        if (instructionsVisible) {
+          instructionsPanel.style.display = 'none';
+          toggleIcon.classList.remove('fa-chevron-up');
+          toggleIcon.classList.add('fa-chevron-down');
+        } else {
+          instructionsPanel.style.display = 'block';
+          toggleIcon.classList.remove('fa-chevron-down');
+          toggleIcon.classList.add('fa-chevron-up');
+        }
+        instructionsVisible = !instructionsVisible;
+      });
+      
+      // Esconder automaticamente as instruções após 5 segundos
+      setTimeout(function() {
+        if (instructionsVisible) {
+          instructionsPanel.style.display = 'none';
+          toggleIcon.classList.remove('fa-chevron-up');
+          toggleIcon.classList.add('fa-chevron-down');
+          instructionsVisible = false;
+        }
+      }, 5000);
+    });
+  </script>
+</body>
+</html>

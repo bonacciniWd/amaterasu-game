@@ -1,0 +1,497 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Stick Hero - Ranking</title>
+    <link rel="stylesheet" href="index.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥢</text></svg>">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+      body {
+        background: linear-gradient(135deg, #300, #900, #300);
+        color: white;
+        font-family: 'Noto Sans JP', sans-serif;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-sizing: border-box;
+      }
+      
+      * {
+        box-sizing: border-box;
+      }
+      
+      .container {
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 20px 10px;
+        text-align: center;
+        width: 90%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      h1 {
+        font-family: 'Cinzel', serif;
+        font-size: 2em;
+        margin-bottom: 20px;
+        text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        color: #f1f1f1;
+        width: 100%;
+        text-align: center;
+      }
+      
+      .ranking-container {
+        background: rgba(0, 0, 0, 0.7);
+        border-radius: 15px;
+        padding: 15px;
+        margin-bottom: 20px;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        width: 100%;
+      }
+      
+      .table-container {
+        max-height: 350px;
+        overflow-y: auto;
+        margin: 15px 0;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(139, 0, 0, 0.6) rgba(0, 0, 0, 0.2);
+        width: 100%;
+      }
+      
+      .table-container::-webkit-scrollbar {
+        width: 6px;
+      }
+      
+      .table-container::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 3px;
+      }
+      
+      .table-container::-webkit-scrollbar-thumb {
+        background-color: rgba(139, 0, 0, 0.6);
+        border-radius: 3px;
+      }
+      
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0;
+        color: white;
+        table-layout: fixed;
+      }
+      
+      th, td {
+        padding: 10px 5px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        text-align: center;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      
+      th {
+        background-color: rgba(139, 0, 0, 0.4);
+        font-weight: bold;
+        font-size: 0.9em;
+      }
+      
+      tr:nth-child(odd) {
+        background-color: rgba(255, 255, 255, 0.05);
+      }
+      
+      tr:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+      
+      .position {
+        width: 12%;
+        font-weight: bold;
+        text-align: center;
+      }
+      
+      th.ninja {
+        text-align: left;
+        width: 40%;
+      }
+      
+      td.ninja {
+        text-align: left;
+        padding-left: 10px;
+      }
+      
+      .score {
+        width: 22%;
+        font-weight: bold;
+        text-align: center;
+      }
+      
+      .date {
+        width: 26%;
+        font-size: 0.85em;
+        color: #aaa;
+        text-align: center;
+      }
+      
+      .back-button {
+        display: inline-block;
+        background: linear-gradient(45deg, #700, #a00);
+        color: white;
+        text-decoration: none;
+        padding: 12px 25px;
+        border-radius: 30px;
+        font-size: 1.1em;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        margin: 10px 0 20px 0;
+        width: auto;
+        font-family: 'Cinzel', serif;
+      }
+      
+      .back-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        background: linear-gradient(45deg, #900, #c00);
+      }
+      
+      .user-score {
+        background: rgba(139, 0, 0, 0.2);
+        padding: 15px;
+        border-radius: 10px;
+        margin: 20px auto;
+        font-weight: bold;
+        border: 1px solid rgba(255, 0, 0, 0.3);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+      }
+      
+      .empty-state {
+        padding: 30px;
+        font-style: italic;
+        color: #aaa;
+      }
+      
+      .footer {
+        margin-top: 30px;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.8em;
+        text-align: center;
+        width: 100%;
+      }
+      
+      .edit-name-btn {
+        margin-top: 10px;
+        padding: 8px 15px;
+        background: linear-gradient(45deg, #500, #800);
+        border: none;
+        border-radius: 5px;
+        color: white;
+        cursor: pointer;
+        font-size: 0.9em;
+        font-family: 'Noto Sans JP', sans-serif;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s;
+      }
+      
+      .edit-name-btn:hover {
+        background: linear-gradient(45deg, #600, #900);
+      }
+      
+      .button-icon {
+        width: 16px;
+        height: 16px;
+        filter: invert(1);
+      }
+      
+      .name-form {
+        background: rgba(50, 0, 0, 0.3);
+        padding: 15px;
+        border-radius: 10px;
+        margin: 15px auto;
+        width: 90%;
+        max-width: 400px;
+        text-align: center;
+        transition: all 0.3s ease-in-out;
+        overflow: hidden;
+        max-height: 0;
+        padding: 0;
+        margin: 0;
+        opacity: 0;
+      }
+      
+      .name-form.active {
+        max-height: 200px;
+        padding: 15px;
+        margin: 15px auto;
+        opacity: 1;
+      }
+      
+      .name-form input {
+        padding: 8px 12px;
+        border-radius: 5px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(0, 0, 0, 0.3);
+        color: white;
+        width: 80%;
+        max-width: 300px;
+        font-size: 1em;
+        font-family: 'Noto Sans JP', sans-serif;
+      }
+      
+      .name-form button {
+        padding: 8px 15px;
+        margin: 0 5px;
+        border-radius: 5px;
+        border: none;
+        background: linear-gradient(45deg, #700, #a00);
+        color: white;
+        cursor: pointer;
+        font-family: 'Noto Sans JP', sans-serif;
+      }
+      
+      .name-form button:hover {
+        background: linear-gradient(45deg, #900, #c00);
+        transform: translateY(-2px);
+      }
+      
+      .name-form .button-container {
+        margin-top: 15px;
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+      }
+      
+      @media (max-width: 600px) {
+        body {
+          padding: 20px 0;
+        }
+        
+        .container {
+          padding: 20px 15px;
+          margin: 0 auto;
+          width: 90%;
+          max-width: 100%;
+        }
+        
+        h1 {
+          font-size: 1.8em;
+          margin-top: 10px;
+          margin-bottom: 20px;
+        }
+        
+        .user-score {
+          padding: 12px 8px;
+          font-size: 0.9em;
+        }
+        
+        table {
+          font-size: 0.9em;
+        }
+        
+        th, td {
+          padding: 8px 5px;
+        }
+        
+        .position {
+          width: 12%;
+        }
+        
+        .edit-name-btn {
+          display: block;
+          margin: 10px auto 0;
+        }
+        
+        .name-form input {
+          width: 90%;
+          margin-bottom: 15px;
+          font-size: 0.9em;
+        }
+        
+        .name-form .button-container {
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+        }
+        
+        .name-form button {
+          width: 80%;
+          margin: 0;
+        }
+        
+        .ranking-container {
+          padding: 15px 10px;
+          width: 100%;
+        }
+        
+        .back-button {
+          font-size: 1em;
+          padding: 10px 20px;
+        }
+        
+        .edit-name-btn {
+          width: auto;
+          display: inline-block;
+          margin: 10px auto 0;
+        }
+      }
+      
+      @media (max-width: 480px) {
+        body {
+          padding: 15px 0;
+        }
+        
+        .container {
+          padding: 15px 10px;
+          width: 95%;
+        }
+        
+        .ranking-container {
+          padding: 12px 8px;
+        }
+        
+        h1 {
+          font-size: 1.6em;
+          margin-top: 15px;
+        }
+        
+        .table-container {
+          max-height: 300px;
+        }
+      }
+      
+      @media (max-width: 360px) {
+        body {
+          padding: 10px 0;
+        }
+        
+        .container {
+          padding: 10px 5px;
+          width: 95%;
+        }
+        
+        th, td {
+          padding: 6px 2px;
+          font-size: 0.85em;
+        }
+        
+        .date {
+          font-size: 0.75em;
+        }
+        
+        h1 {
+          font-size: 1.5em;
+          margin-top: 10px;
+        }
+        
+        .position {
+          width: 10%;
+        }
+        
+        th.ninja {
+          width: 38%;
+        }
+        
+        .score {
+          width: 22%;
+        }
+        
+        .date {
+          width: 30%;
+        }
+        
+        .user-score {
+          padding: 10px 5px;
+        }
+      }
+      
+      .position-1 {
+        color: gold;
+        text-shadow: 0 0 3px rgba(255, 215, 0, 0.5);
+      }
+      
+      .position-2 {
+        color: silver;
+        text-shadow: 0 0 3px rgba(192, 192, 192, 0.5);
+      }
+      
+      .position-3 {
+        color: #cd7f32; /* Bronze */
+        text-shadow: 0 0 3px rgba(205, 127, 50, 0.5);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Ranking dos Ninjas</h1>
+      
+      <div class="ranking-container">
+        <div id="userScore" class="user-score">
+          <div>Seu melhor score: <span id="playerBestScore">0</span> pontos</div>
+          <button id="editNameBtn" class="edit-name-btn">
+            <img src="./src/images/icons/trophy.png" alt="Troféu" class="button-icon">
+            Editar Nome
+          </button>
+        </div>
+        
+        <div id="nameForm" class="name-form" style="display: none;">
+          <input type="text" id="playerNameInput" placeholder="Digite seu nome" maxlength="15">
+          <div class="button-container">
+            <button id="saveNameBtn">Salvar</button>
+            <button id="cancelNameBtn">Cancelar</button>
+          </div>
+        </div>
+        
+        <div class="table-container">
+          <table id="rankingTable">
+            <thead>
+              <tr>
+                <th class="position">#</th>
+                <th class="ninja">Ninja</th>
+                <th class="score">Pontos</th>
+                <th class="date">Data</th>
+              </tr>
+            </thead>
+            <tbody id="rankingBody">
+              <!-- Será preenchido via JavaScript -->
+            </tbody>
+          </table>
+        </div>
+        
+        <div id="emptyState" class="empty-state" style="display: none;">
+          Nenhuma pontuação registrada ainda. Seja o primeiro a jogar!
+        </div>
+      </div>
+      
+      <a href="index.html" class="back-button">Voltar ao Menu</a>
+      
+      <div class="footer">
+        Powered by Vrz Studio
+      </div>
+    </div>
+    
+    <script type="module">
+      import { displayRanking, checkPlayerScore, setupNameForm } from './src/js/modules/ranking.js';
+      
+      document.addEventListener('DOMContentLoaded', function() {
+        // Inicializar
+        displayRanking();
+        checkPlayerScore();
+        setupNameForm();
+      });
+    </script>
+  </body>
+</html> 

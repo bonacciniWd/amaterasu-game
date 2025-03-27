@@ -1,0 +1,128 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Stick Hero - Game</title>
+    <link rel="stylesheet" href="index.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥢</text></svg>">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Adicionar Lottie para animações JSON -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.7.14/lottie.min.js"></script>
+    <!-- Adicionar link para as fontes no head -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+      .ranking-button {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: rgba(0, 0, 0, 0.7);
+        border-radius: 10px;
+        color: white;
+        text-decoration: none;
+        padding: 8px 15px;
+        font-size: 1.1em;
+        z-index: 9000;
+        border-left: 3px solid #ff7e00;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Noto Sans JP', sans-serif;
+        font-weight: 700;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        min-width: 40px;
+        pointer-events: auto;
+      }
+      
+      .ranking-button:hover {
+        background-color: rgba(20, 20, 20, 0.9);
+      }
+      
+      .rank-icon {
+        width: 23px;
+        height: 23px;
+        filter: invert(1);
+        margin-right: 5px;
+        vertical-align: middle;
+      }
+      
+      @media (max-width: 600px) {
+        .ranking-button {
+          bottom: 10px;
+          right: 10px;
+          padding: 6px 12px;
+          font-size: 0.9em;
+        }
+        
+        .rank-icon {
+          width: 21px;
+          height: 21px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a href="ranking.html" class="ranking-button">
+      <img src="./src/images/icons/trophy.png" alt="Troféu" class="rank-icon"> Ranking
+    </a>
+    
+    <script>
+      // Prevenir seleção de texto em toda a página
+      document.addEventListener('touchstart', function(e) {
+        if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'A') {
+          e.preventDefault();
+        }
+      }, { passive: false });
+      
+      document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM carregado, carregando game screen...');
+        
+        try {
+          // Primeiro importamos o component do jogo
+          import('./src/components/game/game.js')
+            .then(gameModule => {
+              console.log('Componente de jogo carregado');
+              
+              // Criar a tela de jogo
+              const gameElement = gameModule.gameScreen.createGameScreen();
+              gameElement.style.display = 'flex'; // Garantir visibilidade
+              document.body.appendChild(gameElement);
+              
+              // Agora inicializamos o jogo
+              import('./src/js/index.js')
+                .then(indexModule => {
+                  console.log('Módulo de inicialização do jogo carregado');
+                  
+                  if (typeof indexModule.initGame === 'function') {
+                    console.log('Inicializando o jogo...');
+                    indexModule.initGame();
+                    console.log('Jogo inicializado com sucesso');
+                  } else {
+                    throw new Error('Função initGame não encontrada');
+                  }
+                })
+                .catch(error => {
+                  throw new Error(`Erro ao inicializar jogo: ${error.message}`);
+                });
+            })
+            .catch(error => {
+              throw new Error(`Erro ao carregar componente de jogo: ${error.message}`);
+            });
+        } catch (error) {
+          console.error('Erro geral na inicialização:', error);
+          
+          // Exibir erro na tela
+          const errorDiv = document.createElement('div');
+          errorDiv.style.position = 'fixed';
+          errorDiv.style.top = '10px';
+          errorDiv.style.left = '10px';
+          errorDiv.style.backgroundColor = 'rgba(255, 0, 0, 0.8)';
+          errorDiv.style.color = 'white';
+          errorDiv.style.padding = '20px';
+          errorDiv.style.borderRadius = '5px';
+          errorDiv.style.zIndex = '99999';
+          errorDiv.textContent = `Erro: ${error.message}`;
+          document.body.appendChild(errorDiv);
+        }
+      });
+    </script>
+  </body>
+</html> 

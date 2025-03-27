@@ -1,0 +1,847 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  position: fixed;
+  top: 0;
+  left: 0;
+  font-family: 'Noto Sans JP', sans-serif;
+  -webkit-touch-callout: none; /* Impedir menu de contexto iOS */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Padrão */
+  touch-action: manipulation; /* Prevenir zoom em duplo toque */
+  box-sizing: border-box;
+  background-color: #300; /* Fundo sólido para evitar linhas brancas */
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+}
+
+canvas {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+#score {
+  position: relative;
+  transform: none;
+  font-size: 1.5em;
+  font-weight: 700;
+  color: white;
+  z-index: 100;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  pointer-events: none; /* Impede qualquer interação com o elemento */
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 10px;
+  padding: 8px 15px;
+  border-left: 3px solid #ff7e00;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 120px;
+  width: 160px; /* Largura fixa para estabilidade */
+  margin-bottom: 0; /* Removido o espaçamento fixo inferior */
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+.score-label {
+  font-size: 0.8em;
+  opacity: 0.8;
+  margin-right: 10px;
+}
+
+.score-value, .perfect-value {
+  font-size: 1.2em;
+  font-weight: 900;
+}
+
+/* Novo estilo para o banner de pontuação */
+.score-banner {
+  position: absolute;
+  top: 40px;
+  left: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px; /* Reduzido ainda mais para desktop */
+  z-index: 3;
+}
+
+/* Estilo para o contador de perfects */
+#perfect-counter {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 10px;
+  padding: 8px 15px;
+  color: white;
+  font-size: 1.5em;
+  font-weight: 700;
+  border-left: 3px solid #ff0000;
+  width: 160px; /* Largura fixa para estabilidade */
+  justify-content: space-between;
+}
+
+#perfect-counter img {
+  height: 30px;
+  margin-right: 10px;
+}
+
+/* Container para os botões de ação */
+.action-buttons {
+  position: fixed;
+  bottom: 65px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* Reduzido de 15px para 8px no desktop */
+  width: 180px;
+  z-index: 3;
+}
+
+/* Botões de ação compartilham os mesmos estilos base */
+#restart, #buy-life {
+  width: 100%;
+  height: 45px; /* Reduzido de 50px para 45px */
+  border-radius: 25px;
+  color: white;
+  font-weight: 700;
+  font-size: 1em;
+  display: none;
+  cursor: pointer;
+  text-align: center;
+  pointer-events: auto;
+  position: relative;
+  z-index: 1001;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+/* Estilos específicos para cada botão */
+#restart {
+  background-color: #c2d6e0; /* Cor gelo do mapa */
+  border: solid 3px #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), 0 0 15px rgba(255, 255, 255, 0.5);
+  color: #333333; /* Texto escuro para contrastar com o fundo claro */
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
+}
+
+#buy-life {
+  background-color: #e02c2c; /* Vermelho mais vivo */
+  border: solid 3px #000000;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.button-icon {
+  width: 21px;
+  height: 21px;
+  filter: invert(1);
+}
+
+/* Media queries para dispositivos móveis */
+@media (max-width: 768px) {
+  .score-banner {
+    top: 15px;
+    left: 15px;
+    gap: 28px; /* Aumentado para 28px (18px + 10px) */
+  }
+  
+  #score {
+    font-size: 1.2em;
+    padding: 6px 10px;
+    width: 130px;
+    margin-bottom: 0;
+  }
+  
+  .score-label {
+    font-size: 0.7em;
+  }
+  
+  .score-value, .perfect-value {
+    font-size: 1em;
+  }
+  
+  #perfect-counter {
+    font-size: 1.2em;
+    padding: 6px 10px;
+    width: 130px;
+    margin-top: 0; /* Removido o margin-top pois já temos o gap */
+  }
+  
+  #perfect-counter img {
+    height: 20px;
+    margin-right: 8px;
+  }
+  
+  .action-buttons {
+    bottom: 45px;
+    gap: 10px; /* Gap um pouco maior no mobile para facilitar o toque */
+    width: 160px;
+  }
+  
+  #restart, #buy-life {
+    height: 40px;
+    font-size: 0.8em;
+    border-radius: 20px;
+  }
+  
+  #restart {
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3), 0 0 10px rgba(255, 255, 255, 0.5);
+  }
+  
+  #buy-life {
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+  }
+  
+  .button-icon {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+#introduction {
+  position: absolute;
+  font-weight: 600;
+  font-size: 0.8em;
+  text-align: center;
+  transition: opacity 2s;
+  color: white;
+  background-color: #000000AB;
+  padding: 12px 16px;
+  border-radius: 20px;
+  pointer-events: not-allowed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 80vw;
+  z-index: 3;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+#perfect {
+  position: absolute;
+  opacity: 0;
+  transition: opacity 0.5s;
+  z-index: 3;
+  color: white;
+  font-weight: bold;
+  font-size: 1.5em;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 15px 25px;
+  border-radius: 10px;
+  pointer-events: none;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+#creditos {
+  display: block;
+  position: fixed;
+  bottom: 0 !important;
+  left: 0 !important;
+  background: #000000AB;
+  padding: 8px 12px;
+  color: #FFF;
+  border-top: solid 1px #ff7e00;
+  border-right: solid 1px #fff000;
+  border-top-right-radius: 10px;
+  font-size: 1em;
+  z-index: 3;
+  width: auto;
+  margin: 0;
+}
+
+#touchArea {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+}
+
+/* Ajustar o comportamento do touchArea baseado no estado do jogo */
+body.game-active #touchArea {
+  pointer-events: auto;
+}
+
+body:not(.game-active) #touchArea {
+  pointer-events: auto; /* Garantir que podemos iniciar o jogo */
+}
+
+/* Media queries para dispositivos móveis */
+@media (max-width: 768px) {
+  #score {
+    top: 20px;
+    font-size: 1.8em;
+  }
+  
+  #creditos {
+    padding: 5px 10px;
+    font-size: 0.9em;
+  }
+  
+  #perfect {
+    font-size: 1.3em;
+    padding: 10px 20px;
+    width: 80%;
+    max-width: 300px;
+  }
+}
+
+/* Estilo para o botão mobile, caso necessite criar um */
+#mobileStartButton {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 25px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: 2px solid white;
+  border-radius: 50px;
+  font-size: 1.2em;
+  z-index: 1000;
+  display: none;
+  cursor: pointer;
+}
+
+#story-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: url('./src/images/fundo.webp');
+  background-position: center center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.story-container {
+  max-width: 800px;
+  width: 90%;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 0 30px rgba(255, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  z-index: 10000;
+}
+
+.story-container h1 {
+  font-size: 2em;
+  margin-bottom: 20px;
+  color: #f1f1f1;
+  text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+  font-family: 'Cinzel', serif;
+}
+
+#story-text {
+  font-size: 1.1em;
+  line-height: 1.6;
+  margin-bottom: 30px;
+  color: #f1f1f1;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+#continue-story, #skip-story {
+  display: inline-block;
+  padding: 12px 25px;
+  margin: 10px;
+  border: none;
+  border-radius: 30px;
+  background: linear-gradient(45deg, #700, #a00);
+  color: white;
+  font-size: 1.1em;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+#continue-story:hover, #skip-story:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3);
+}
+
+#continue-story:disabled {
+  background: linear-gradient(45deg, #888, #666);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+#skip-story {
+  background: linear-gradient(45deg, #333, #222);
+  font-size: 0.9em;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+#skip-story:focus {
+  outline: none;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+}
+
+.button-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .story-container {
+    width: 95%;
+    padding: 20px;
+    margin: 15px;
+  }
+  
+  .story-container h1 {
+    font-size: 1.8em;
+    margin-bottom: 20px;
+  }
+  
+  #story-text {
+    font-size: 1em;
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+  
+  #continue-story, #skip-story {
+    padding: 10px 20px;
+    font-size: 0.9em;
+    margin: 5px;
+  }
+
+  .button-container {
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+  }
+
+  #continue-story, #skip-story {
+    width: 100%;
+    max-width: 200px;
+  }
+}
+
+/* Animação de fade para o texto */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Estilo para o botão de controle de som */
+.sound-button {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  width: 45px;
+  height: 45px;
+  background-color: rgba(0, 0, 0, 0.6);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  color: white;
+  font-size: 1.5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 3000;
+  transition: all 0.2s;
+  padding: 0;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Ajuste para o ícone de som dentro do botão */
+.sound-button .sound-icon {
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  padding: 0;
+}
+
+.sound-button:hover {
+  background-color: rgba(0, 0, 0, 0.9);
+  transform: scale(1.1);
+}
+
+.sound-button:active {
+  transform: scale(0.95);
+  background-color: rgba(50, 50, 50, 0.9);
+}
+
+/* Versão mobile do botão de som */
+@media (max-width: 768px) {
+  .sound-button {
+    top: 15px;
+    right: 15px;
+    width: 40px;
+    height: 40px;
+    font-size: 1.2em;
+  }
+}
+
+/* Estilos para o tesouro e diálogo do boss */
+#treasureAnimation {
+  opacity: 0;
+  animation: fadeIn 0.5s forwards;
+  box-shadow: 0 0 20px gold;
+  border: 2px solid gold;
+  z-index: 1002;
+}
+
+#bossDialogueContainer {
+  opacity: 0;
+  animation: fadeIn 0.5s forwards;
+  box-shadow: 0 0 20px red;
+  border: 2px solid darkred;
+  z-index: 1002;
+}
+
+#bossDialogueTitle {
+  font-size: 1.5em;
+  color: #ff9900;
+  margin-bottom: 10px;
+  font-family: 'Cinzel', serif;
+}
+
+#bossDialogueText {
+  margin-bottom: 20px;
+  line-height: 1.5;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+#bossResponseButton {
+  padding: 10px 20px;
+  background: linear-gradient(45deg, #700, #a00);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+#closeTreasure {
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 15px;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+/* Estilo para o dragão flutuante */
+.dragon-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Media queries para responsividade */
+@media (max-width: 768px) {
+  #treasureAnimation {
+    width: 150px;
+    height: 150px;
+  }
+  
+  #bossDialogueContainer {
+    width: 90%;
+    padding: 15px;
+  }
+  
+  #bossDialogueTitle {
+    font-size: 1.2em;
+  }
+  
+  #bossResponseButton {
+    padding: 8px 15px;
+    font-size: 1em;
+  }
+}
+
+/* Animação para quando perfects são usados */
+@keyframes pulseGreen {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); box-shadow: 0 0 15px #00ff00; }
+  100% { transform: scale(1); }
+}
+
+.perfect-used {
+  animation: pulseGreen 1s ease;
+  border-left: 3px solid #00ff00 !important;
+}
+
+/* Ajustes para dispositivos muito pequenos (menores que 375px) */
+@media (max-width: 374px) {
+  .score-banner {
+    top: 10px;
+    left: 10px;
+    gap: 32px; /* Aumentado mais 10px para dispositivos muito pequenos */
+  }
+  
+  #score, #perfect-counter {
+    font-size: 1em;
+    padding: 5px 8px;
+    width: 120px;
+  }
+  
+  #perfect-counter {
+    margin-top: 0; /* Removendo margin-top redundante */
+  }
+  
+  .score-label {
+    font-size: 0.65em;
+  }
+  
+  .score-value, .perfect-value {
+    font-size: 0.9em;
+  }
+}
+
+/* Botão desabilitado */
+.disabled-button {
+  background-color: #777777AB !important;
+  cursor: not-allowed !important;
+  color: #cccccc !important;
+  border: solid 3px #555555 !important;
+  opacity: 0.8;
+  box-shadow: none !important;
+}
+
+.perfect-label-container {
+  display: flex;
+  align-items: center;
+}
+
+.perfect-label-container img {
+  margin-right: 8px;
+}
+
+/* Media queries para dispositivos móveis */
+@media (max-width: 768px) {
+  .perfect-label-container img {
+    margin-right: 5px;
+  }
+}
+
+/* Ajustes para telas muito pequenas */
+@media (max-width: 375px) {
+  .story-container {
+    padding: 15px;
+    margin: 10px;
+  }
+
+  .story-container h1 {
+    font-size: 1.5em;
+  }
+
+  #story-text {
+    font-size: 0.9em;
+  }
+
+  #continue-story, #skip-story {
+    padding: 8px 16px;
+    font-size: 0.85em;
+    max-width: 180px;
+  }
+}
+
+/* Containers de diálogo e tesouro */
+#treasureAnimation, #bossDialogueContainer {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.95);
+  border-radius: 15px;
+  padding: 20px;
+  color: white;
+  text-align: center;
+  z-index: 99999;
+  box-shadow: 0 0 30px rgba(255, 0, 0, 0.4);
+  border: 2px solid rgba(255, 0, 0, 0.6);
+  display: none;
+  pointer-events: auto;
+}
+
+#treasureAnimation {
+  width: 200px;
+  height: 200px;
+}
+
+#bossDialogueContainer {
+  width: 80%;
+  max-width: 400px;
+}
+
+/* Botões de fechar e resposta */
+#closeTreasure, #bossResponseButton {
+  z-index: 100000;
+  position: relative;
+  pointer-events: auto;
+}
+
+/* Tela de história */
+#story-screen {
+  z-index: 9999;
+  background: linear-gradient(135deg, 
+    rgba(0, 0, 0, 0.95),
+    rgba(139, 0, 0, 0.9),
+    rgba(0, 0, 0, 0.95)
+  );
+}
+
+.story-container {
+  z-index: 10000;
+}
+
+/* Ajustes para mobile */
+@media (max-width: 768px) {
+  #treasureAnimation {
+    width: 90%;
+    max-width: 300px;
+    height: auto;
+    min-height: 200px;
+  }
+  
+  #bossDialogueContainer {
+    width: 90%;
+    padding: 15px;
+  }
+}
+
+/* Garantir que os botões de ação fiquem sempre visíveis */
+.action-buttons {
+  position: fixed;
+  bottom: 65px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* Reduzido de 15px para 8px no desktop */
+  width: 180px;
+  pointer-events: auto;
+}
+
+#restart, #buy-life {
+  position: relative;
+  width: 100%;
+  pointer-events: auto;
+  cursor: pointer;
+  display: none;
+}
+
+/* Ajuste para o botão de som */
+.sound-button {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+/* Ajuste para os créditos */
+#creditos {
+  z-index: 1000;
+}
+
+/* Estilo para ícones SVG */
+.sound-icon, .rank-icon {
+  width: 29px;
+  height: 29px;
+  filter: invert(1);
+  vertical-align: middle;
+  display: inline-block;
+}
+
+/* Estilo para o botão de reset de dados */
+.reset-data-btn {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background-color: rgba(255, 0, 0, 0.6);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 15px;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: all 0.2s;
+  z-index: 1000;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+.reset-data-btn:hover {
+  background-color: rgba(255, 0, 0, 0.8);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .reset-data-btn {
+    bottom: 15px;
+    left: 15px;
+    padding: 6px 12px;
+    font-size: 0.8em;
+  }
+}
+

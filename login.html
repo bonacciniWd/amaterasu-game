@@ -1,0 +1,429 @@
+<!doctype html>
+<html>
+<head>
+  <title>Amaterasu - Login</title>
+  <link rel="stylesheet" href="index.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥢</text></svg>">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+  
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+  
+  <style>
+    body {
+      background-image: url('./src/images/fundo.webp');
+      background-position: center center;
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      position: relative;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-sizing: border-box;
+    }
+    
+    /* Gradiente de sobreposição */
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, 
+        rgba(0, 0, 0, 0.5),
+        rgba(139, 0, 0, 0.3),
+        rgba(0, 0, 0, 0.5)
+      );
+      z-index: -1;
+    }
+    
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 100%;
+      padding: 10px;
+      box-sizing: border-box;
+      margin: 0;
+    }
+    
+    h1 {
+      margin-top: 40px;
+      margin-bottom: 30px;
+      color: white;
+      text-align: center;
+      font-family: 'Cinzel', serif;
+      font-size: 2.5em;
+      text-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
+      width: 100%;
+    }
+    
+    .auth-container {
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      position: relative;
+      z-index: 1;
+      box-sizing: border-box;
+    }
+    
+    .auth-tabs {
+      display: flex;
+      margin-bottom: 25px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .auth-tab {
+      flex: 1;
+      text-align: center;
+      padding: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      color: #ccc;
+      transition: all 0.3s;
+    }
+    
+    .auth-tab.active {
+      color: white;
+      border-bottom: 3px solid #ff7e00;
+    }
+    
+    .auth-form {
+      display: none;
+    }
+    
+    .auth-form.active {
+      display: block;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #ddd;
+      font-size: 0.9em;
+      text-align: left;
+    }
+    
+    .form-group input {
+      width: 100%;
+      padding: 12px 15px;
+      border-radius: 5px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(0, 0, 0, 0.3);
+      color: white;
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: 1em;
+      box-sizing: border-box;
+    }
+    
+    .form-group input:focus {
+      outline: none;
+      border-color: #ff7e00;
+      box-shadow: 0 0 5px rgba(255, 126, 0, 0.5);
+    }
+    
+    .auth-btn {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border-radius: 30px;
+      background: linear-gradient(45deg, #700, #a00);
+      color: white;
+      border: none;
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: 1em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .auth-btn:hover {
+      background: linear-gradient(45deg, #900, #c00);
+      transform: translateY(-2px);
+    }
+    
+    .auth-btn.google {
+      background: #4285F4;
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .auth-btn.google:hover {
+      background: #5294FF;
+    }
+    
+    .auth-btn.google img {
+      width: 24px;
+      height: 24px;
+      margin-right: 10px;
+      background: white;
+      padding: 2px;
+      border-radius: 50%;
+    }
+    
+    .error-message {
+      background: rgba(255, 0, 0, 0.2);
+      border-left: 3px solid red;
+      color: white;
+      padding: 10px;
+      margin-top: 20px;
+      border-radius: 5px;
+      text-align: left;
+      display: none;
+    }
+    
+    .back-button {
+      display: inline-block;
+      margin-top: 20px;
+      color: #ddd;
+      text-decoration: none;
+      padding: 8px 15px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s;
+      background: rgba(0, 0, 0, 0.3);
+      font-family: 'Cinzel', serif;
+    }
+    
+    .back-button:hover {
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Media queries para ajuste em telas menores */
+    @media (max-width: 480px) {
+      .container {
+        padding: 10px 0;
+      }
+      
+      .auth-container {
+        width: 90%;
+        margin: 0 auto;
+        padding: 20px 15px;
+        border-radius: 12px;
+      }
+      
+      h1 {
+        font-size: 2.2em;
+        margin-top: 30px;
+        margin-bottom: 25px;
+      }
+      
+      .form-group {
+        margin-bottom: 15px;
+      }
+      
+      .back-button {
+        margin-top: 15px;
+        padding: 6px 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Amaterasu Ninjas</h1>
+    
+    <div class="auth-container">
+      <div class="auth-tabs">
+        <div class="auth-tab active" id="loginTab">Login</div>
+        <div class="auth-tab" id="registerTab">Registrar</div>
+      </div>
+      
+      <!-- Formulário de Login -->
+      <div class="auth-form active" id="loginForm">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="Digite seu email" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="password">Senha</label>
+          <input type="password" id="password" placeholder="Digite sua senha" required>
+        </div>
+        
+        <button class="auth-btn" id="loginButton">Entrar</button>
+        
+        <button class="auth-btn google" id="googleLogin">
+          <img src="./src/images/icons/google-icon.svg" alt="Google">
+          Entrar com Google
+        </button>
+      </div>
+      
+      <!-- Formulário de Registro -->
+      <div class="auth-form" id="registerForm">
+        <div class="form-group">
+          <label for="displayName">Nome de Ninja</label>
+          <input type="text" id="displayName" placeholder="Como deseja ser chamado" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="registerEmail">Email</label>
+          <input type="email" id="registerEmail" placeholder="Digite seu email" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="registerPassword">Senha</label>
+          <input type="password" id="registerPassword" placeholder="Crie uma senha forte" required>
+        </div>
+        
+        <button class="auth-btn" id="registerButton">Registrar</button>
+      </div>
+      
+      <div class="error-message" id="errorMessage"></div>
+    </div>
+    
+    <a href="index.html" class="back-button">Voltar ao Menu</a>
+  </div>
+  
+  <script type="module">
+    import { loginWithEmail, registerWithEmail, loginWithGoogle, isAuthenticated, onAuthStateChanged, updateProfile } from './src/js/services/firebase.js';
+    
+    // Verificar se o usuário já está logado
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('Página de login carregada, verificando autenticação...');
+      
+      // Usar onAuthStateChanged para garantir que o Firebase já verificou a autenticação
+      onAuthStateChanged(user => {
+        console.log('Estado de autenticação verificado:', user);
+        
+        // Se o usuário já estiver logado, redirecionar para a página principal
+        if (user) {
+          console.log('Usuário já autenticado, redirecionando para a página principal');
+          window.location.href = 'index.html';
+          return;
+        }
+        
+        console.log('Usuário não autenticado, mostrando formulário de login');
+        // Exibir o formulário de login (opcional, já que ele já está visível por padrão)
+      });
+    });
+    
+    // Elementos do DOM
+    const loginTab = document.getElementById('loginTab');
+    const registerTab = document.getElementById('registerTab');
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const errorMessage = document.getElementById('errorMessage');
+    
+    // Alternar entre os formulários
+    loginTab.addEventListener('click', () => {
+      loginTab.classList.add('active');
+      registerTab.classList.remove('active');
+      loginForm.classList.add('active');
+      registerForm.classList.remove('active');
+      errorMessage.style.display = 'none';
+    });
+    
+    registerTab.addEventListener('click', () => {
+      registerTab.classList.add('active');
+      loginTab.classList.remove('active');
+      registerForm.classList.add('active');
+      loginForm.classList.remove('active');
+      errorMessage.style.display = 'none';
+    });
+    
+    // Mostrar mensagem de erro
+    function showError(message) {
+      errorMessage.textContent = message;
+      errorMessage.style.display = 'block';
+    }
+    
+    // Login com email e senha
+    document.getElementById('loginButton').addEventListener('click', async () => {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      
+      if (!email || !password) {
+        return showError('Por favor, preencha todos os campos');
+      }
+      
+      try {
+        await loginWithEmail(email, password);
+        window.location.href = 'index.html';
+      } catch (error) {
+        showError(error.message);
+      }
+    });
+    
+    // Login com Google
+    document.getElementById('googleLogin').addEventListener('click', async () => {
+      try {
+        await loginWithGoogle();
+        window.location.href = 'index.html';
+      } catch (error) {
+        showError(error.message);
+      }
+    });
+    
+    // Registro com email e senha
+    document.getElementById('registerButton').addEventListener('click', async () => {
+      const displayName = document.getElementById('displayName').value;
+      const email = document.getElementById('registerEmail').value;
+      const password = document.getElementById('registerPassword').value;
+      
+      if (!displayName || !email || !password) {
+        return showError('Por favor, preencha todos os campos');
+      }
+      
+      if (password.length < 6) {
+        return showError('A senha deve ter pelo menos 6 caracteres');
+      }
+      
+      try {
+        const user = await registerWithEmail(email, password);
+        
+        // Atualizar o nome de exibição do usuário
+        await updateProfile({ displayName });
+        
+        // Redirecionar para o menu principal
+        window.location.href = 'index.html';
+      } catch (error) {
+        showError(error.message);
+      }
+    });
+    
+    // Permitir envio com Enter
+    document.getElementById('email').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        document.getElementById('loginButton').click();
+      }
+    });
+    
+    document.getElementById('password').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        document.getElementById('loginButton').click();
+      }
+    });
+    
+    document.getElementById('registerPassword').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        document.getElementById('registerButton').click();
+      }
+    });
+  </script>
+</body>
+</html> 

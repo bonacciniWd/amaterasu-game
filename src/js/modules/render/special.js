@@ -10,7 +10,7 @@ import { playIceSound } from '../audio.js';
 
 // Imagens
 let dragonImage = new Image();
-dragonImage.src = '/src/images/drag.png';
+dragonImage.src = 'src/images/drag.png';
 
 // Função para animar o dragão
 export function drawDragon(ctx) {

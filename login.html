@@ -19,13 +19,7 @@
       background-repeat: no-repeat;
       background-attachment: fixed;
       position: relative;
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      box-sizing: border-box;
+      
     }
     
     /* Gradiente de sobreposição */
@@ -47,12 +41,12 @@
     .container {
       display: flex;
       flex-direction: column;
+      justify-content: flex-start;
       align-items: center;
+      min-height: 100vh;
       width: 100%;
-      max-width: 100%;
-      padding: 10px;
+      padding: 20px;
       box-sizing: border-box;
-      margin: 0;
     }
     
     h1 {
@@ -63,11 +57,10 @@
       font-family: 'Cinzel', serif;
       font-size: 2.5em;
       text-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
-      width: 100%;
     }
     
     .auth-container {
-      width: 100%;
+      width: 90%;
       max-width: 400px;
       margin: 0 auto;
       background: rgba(0, 0, 0, 0.7);
@@ -79,7 +72,6 @@
       border: 1px solid rgba(255, 255, 255, 0.1);
       position: relative;
       z-index: 1;
-      box-sizing: border-box;
     }
     
     .auth-tabs {
@@ -212,39 +204,10 @@
       transform: translateY(-2px);
       box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
     }
-    
-    /* Media queries para ajuste em telas menores */
-    @media (max-width: 480px) {
-      .container {
-        padding: 10px 0;
-      }
-      
-      .auth-container {
-        width: 90%;
-        margin: 0 auto;
-        padding: 20px 15px;
-        border-radius: 12px;
-      }
-      
-      h1 {
-        font-size: 2.2em;
-        margin-top: 30px;
-        margin-bottom: 25px;
-      }
-      
-      .form-group {
-        margin-bottom: 15px;
-      }
-      
-      .back-button {
-        margin-top: 15px;
-        padding: 6px 12px;
-      }
-    }
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="container" style="position: relative; z-index: 2;">
     <h1>Amaterasu Ninjas</h1>
     
     <div class="auth-container">

@@ -17,9 +17,11 @@ export function setupInputEvents() {
 
   // Garantir que os eventos de toque funcionem corretamente
   window.addEventListener("touchstart", function (event) {
-    // Ignorar eventos do botão de som
-    if (event.target.id === 'soundToggle' || event.target.closest('#soundToggle')) {
-      return;
+    // Ignorar eventos do botão de som com tratamento especial
+    if (event.target.id === 'soundToggle' || 
+        event.target.closest('#soundToggle') ||
+        (event.target.classList && event.target.classList.contains('sound-icon'))) {
+      return; // Permitir que o evento seja tratado pelo botão de som
     }
     
     // Prevenir comportamento padrão exceto para botões
@@ -30,14 +32,21 @@ export function setupInputEvents() {
     if (phase == "waiting") {
       startStretching();
     }
-  });
+  }, { passive: false }); // importante para permitir preventDefault
 
   // Garantir que o evento de soltar o stick funcione
   window.addEventListener("touchend", function (event) {
+    // Ignorar eventos do botão de som
+    if (event.target.id === 'soundToggle' || 
+        event.target.closest('#soundToggle') ||
+        (event.target.classList && event.target.classList.contains('sound-icon'))) {
+      return;
+    }
+
     if (phase == "stretching") {
       startTurning();
     }
-  });
+  }, { passive: false });
 
   // Adicionar evento de clique ao botão
   const mobileStartButton = document.getElementById("mobileStartButton");
@@ -53,7 +62,9 @@ export function setupInputEvents() {
   // Adicionar eventos para desktop
   window.addEventListener("mousedown", function (event) {
     // Ignorar eventos do botão de som
-    if (event.target.id === 'soundToggle' || event.target.closest('#soundToggle')) {
+    if (event.target.id === 'soundToggle' || 
+        event.target.closest('#soundToggle') ||
+        (event.target.classList && event.target.classList.contains('sound-icon'))) {
       return;
     }
     
@@ -63,6 +74,13 @@ export function setupInputEvents() {
   });
 
   window.addEventListener("mouseup", function (event) {
+    // Ignorar eventos do botão de som
+    if (event.target.id === 'soundToggle' || 
+        event.target.closest('#soundToggle') ||
+        (event.target.classList && event.target.classList.contains('sound-icon'))) {
+      return;
+    }
+
     if (phase == "stretching") {
       startTurning();
     }

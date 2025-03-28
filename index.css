@@ -19,7 +19,21 @@ html, body {
   background-color: #300; /* Fundo sólido para evitar linhas brancas */
 }
 
+/* Modificado para permitir que as páginas de login e perfil usem seus próprios estilos */
 .container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+}
+
+/* Classe específica para o jogo */
+.game-container {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -479,54 +493,54 @@ body:not(.game-active) #touchArea {
   to { opacity: 1; }
 }
 
-/* Estilo para o botão de controle de som */
+/* Estilos para botão de som */
 .sound-button {
   position: fixed;
-  top: 15px;
-  right: 15px;
-  width: 45px;
-  height: 45px;
-  background-color: rgba(0, 0, 0, 0.6);
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  top: 40px;
+  right: 20px;
+  width: 36px;
+  height: 36px;
+  background-color: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
-  color: white;
-  font-size: 1.5em;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0;
+  z-index: 9999;
   cursor: pointer;
-  z-index: 3000;
-  transition: all 0.2s;
-  padding: 0;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-}
-
-/* Ajuste para o ícone de som dentro do botão */
-.sound-button .sound-icon {
-  width: 24px;
-  height: 24px;
-  margin: 0;
-  padding: 0;
-}
-
-.sound-button:hover {
-  background-color: rgba(0, 0, 0, 0.9);
-  transform: scale(1.1);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: transform 0.2s, background-color 0.2s;
 }
 
 .sound-button:active {
   transform: scale(0.95);
-  background-color: rgba(50, 50, 50, 0.9);
+  background-color: rgba(0, 0, 0, 0.8);
 }
 
-/* Versão mobile do botão de som */
-@media (max-width: 768px) {
+.sound-icon {
+  width: 20px;
+  height: 20px;
+  filter: invert(1);
+  pointer-events: none; /* Para garantir que os cliques passem para o botão */
+}
+
+/* Para telas pequenas */
+@media (max-width: 600px) {
   .sound-button {
+    width: 54px;
+    height: 54px;
     top: 15px;
     right: 15px;
-    width: 40px;
-    height: 40px;
-    font-size: 1.2em;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  }
+  
+  .sound-icon {
+    width: 30px;
+    height: 30px;
   }
 }
 
@@ -794,8 +808,8 @@ body:not(.game-active) #touchArea {
 /* Ajuste para o botão de som */
 .sound-button {
   position: fixed;
-  top: 15px;
-  right: 15px;
+  top: 40px;
+  right: 20px;
   pointer-events: auto;
   cursor: pointer;
 }
@@ -845,3 +859,155 @@ body:not(.game-active) #touchArea {
   }
 }
 
+.name-form {
+  background: rgba(50, 0, 0, 0.3);
+  border-radius: 10px;
+  margin: 15px auto;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  transition: all 0.3s ease-in-out;
+  overflow: hidden;
+  max-height: 0;
+  padding: 0;
+  margin: 0;
+  opacity: 0;
+}
+
+.name-form.active {
+  max-height: 200px;
+  padding: 15px;
+  margin: 15px auto;
+  opacity: 1;
+}
+
+/* Ajustes para telas médias */
+@media (max-width: 480px) {
+  body {
+    padding: 15px 0;
+  }
+  
+  .container {
+    padding: 15px 10px;
+    width: 95%;
+  }
+  
+  .ranking-container {
+    padding: 12px 8px;
+  }
+  
+  h1 {
+    font-size: 1.6em;
+    margin-top: 15px;
+  }
+  
+  .table-container {
+    max-height: 220px;
+  }
+}
+
+/* Ajustes para telas pequenas */
+@media (max-width: 360px) {
+  body {
+    padding: 10px 0;
+  }
+  
+  .container {
+    padding: 10px 5px;
+    width: 95%;
+  }
+  
+  th, td {
+    padding: 6px 2px;
+    font-size: 0.85em;
+  }
+  
+  .date {
+    font-size: 0.75em;
+  }
+  
+  h1 {
+    font-size: 1.5em;
+    margin-top: 10px;
+  }
+  
+  .position {
+    width: 10%;
+  }
+  
+  th.ninja {
+    width: 38%;
+  }
+  
+  .score {
+    width: 22%;
+  }
+  
+  .date {
+    width: 30%;
+  }
+  
+  .user-score {
+    padding: 10px 5px;
+  }
+  
+  .table-container {
+    max-height: 180px;
+  }
+}
+
+.ranking-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 10px;
+  color: white;
+  text-decoration: none;
+  padding: 8px 15px;
+  font-size: 1.1em;
+  z-index: 9000;
+  border-left: 3px solid #ff7e00;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 700;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  min-width: 40px;
+  pointer-events: auto !important;
+  cursor: pointer;
+  -webkit-tap-highlight-color: rgba(255, 126, 0, 0.5);
+  touch-action: manipulation;
+}
+
+.ranking-button:hover, .ranking-button:active {
+  background-color: rgba(20, 20, 20, 0.9);
+  transform: scale(1.05);
+}
+
+@media (max-width: 600px) {
+  .ranking-button {
+    bottom: 10px;
+    right: 10px;
+    padding: 8px 15px;
+    font-size: 1em;
+    z-index: 9999;
+  }
+  
+  .rank-icon {
+    width: 21px;
+    height: 21px;
+  }
+
+  /* Aumentar área de toque para melhor experiência em dispositivos móveis */
+  .ranking-button:before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    bottom: -10px;
+    left: -10px;
+    z-index: -1;
+  }
+}

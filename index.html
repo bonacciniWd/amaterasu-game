@@ -5,6 +5,10 @@
     <link rel="stylesheet" href="index.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥢</text></svg>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
     <!-- Adicionar Lottie para animações JSON -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.7.14/lottie.min.js"></script>
     <!-- Adicionar link para as fontes no head -->
@@ -60,6 +64,8 @@
         margin-bottom: 20px;
         position: relative;
         z-index: 1;
+        width: 100%;
+        max-width: 280px;
       }
       a {
         display: block;
@@ -79,11 +85,52 @@
         background: linear-gradient(45deg, #900, #c00);
       }
       .credit {
-        position: fixed;
-        bottom: 20px;
+        position: relative;
+        bottom: auto;
+        width: 100%;
+        text-align: center;
+        margin-top: 20px;
+        padding-bottom: 10px;
         font-size: 0.8em;
         opacity: 0.7;
         z-index: 1;
+      }
+      
+      .welcome-text {
+        font-family: 'Noto Sans JP', sans-serif;
+        font-size: 1.2em;
+        margin-bottom: 20px;
+        color: #ddd;
+      }
+      
+      .logout-btn {
+        background: linear-gradient(45deg, #333, #555);
+        color: white;
+        text-decoration: none;
+        padding: 15px 30px;
+        border-radius: 30px;
+        font-size: 1.2em;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        cursor: pointer;
+        font-family: 'Cinzel', serif;
+        width: 100%;
+        -webkit-tap-highlight-color: transparent; /* Remover highlight em toque mobile */
+        touch-action: manipulation; /* Melhorar resposta ao toque */
+      }
+      
+      .logout-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        background: linear-gradient(45deg, #444, #666);
+      }
+      
+      /* Estado ativo para dispositivos móveis */
+      .logout-btn:active {
+        transform: translateY(2px);
+        background: linear-gradient(45deg, #222, #444);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
       }
       
       .mini-ranking {
@@ -102,10 +149,25 @@
       }
       
       .mini-ranking h2 {
-        font-size: 1.3em;
+        font-size: 1.5em;
         margin: 0 0 15px 0;
-        color: #ddd;
-        text-shadow: 0 0 5px rgba(255, 0, 0, 0.3);
+        color: #FF7E00;
+        text-shadow: 0 0 8px rgba(255, 0, 0, 0.3);
+        font-family: 'Cinzel', serif;
+        text-align: center;
+        letter-spacing: 1px;
+        position: relative;
+        padding-bottom: 8px;
+      }
+      
+      .mini-ranking h2::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 30%;
+        right: 30%;
+        height: 2px;
+        background: linear-gradient(to right, transparent, #FF7E00, transparent);
       }
       
       .top-scores {
@@ -123,6 +185,10 @@
         background: rgba(255, 255, 255, 0.05);
         border-radius: 8px;
         transition: all 0.2s;
+        position: relative;
+        overflow: hidden;
+        max-width: 100%;
+        gap: 5px; /* Espaçamento menor entre os elementos */
       }
       
       .score-entry:hover {
@@ -133,6 +199,9 @@
         display: flex;
         align-items: center;
         gap: 10px;
+        flex: 1;
+        min-width: 0;
+        width: 100%;
       }
       
       .position-medal {
@@ -167,16 +236,54 @@
         text-overflow: ellipsis;
         white-space: nowrap;
         max-width: 150px;
+        font-family: 'Cinzel', serif;
+        font-size: 1.2em;
+        color: #F9E5B2;
+        text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
       }
       
       .player-score {
         font-weight: bold;
+        color: #FF7E00;
+        font-size: 1.1em;
+        text-shadow: 0 0 3px rgba(255, 126, 0, 0.3);
+        margin-left: auto; /* Empurra para a direita */
+        white-space: nowrap;
       }
       
       .empty-ranking {
         font-style: italic;
         color: #aaa;
         padding: 15px 0;
+      }
+      
+      /* Loader para indicar processamento */
+      .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 100;
+        backdrop-filter: blur(5px);
+      }
+      
+      .loader {
+        width: 50px;
+        height: 50px;
+        border: 5px solid rgba(255, 255, 255, 0.1);
+        border-top: 5px solid #a00;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
       }
       
       @media (max-width: 600px) {
@@ -203,16 +310,766 @@
           padding: 12px 25px;
           font-size: 1.1em;
         }
+        
+        .logout-btn {
+          padding: 12px 25px;
+          font-size: 1.1em;
+        }
+        
+        .credit {
+          margin-top: 15px;
+          padding-bottom: 8px;
+          font-size: 0.75em;
+        }
+      }
+      
+      /* Estilos específicos para iPhone SE e telas muito pequenas */
+      @media (max-width: 375px) {
+        body {
+          padding: 10px 0;
+          justify-content: flex-start;
+          min-height: auto;
+        }
+        
+        h1 {
+          font-size: 1.7em;
+          margin-bottom: 10px;
+          margin-top: 10px;
+        }
+        
+        .welcome-text {
+          font-size: 1em;
+          margin-bottom: 10px;
+        }
+        
+        .buttons {
+          gap: 10px;
+          margin-bottom: 10px;
+        }
+        
+        a, .logout-btn {
+          padding: 8px 15px;
+          font-size: 1em;
+        }
+        
+        .mini-ranking {
+          padding: 8px;
+          margin: 10px 0;
+        }
+        
+        .mini-ranking h2 {
+          font-size: 1.2em;
+          margin: 0 0 10px 0;
+          padding-bottom: 5px;
+        }
+        
+        .top-scores {
+          gap: 6px;
+        }
+        
+        .score-entry {
+          padding: 4px 8px;
+          font-size: 0.8em;
+        }
+        
+        .position-medal {
+          width: 18px;
+          height: 18px;
+          font-size: 0.9em;
+        }
+        
+        .player-name {
+          font-size: 1em;
+          max-width: 100px;
+        }
+        
+        .player-score {
+          font-size: 0.9em;
+        }
+        
+        .position-info {
+          gap: 5px;
+        }
+        
+        .credit {
+          margin-top: 12px;
+          padding-bottom: 5px;
+          font-size: 0.7em;
+        }
+      }
+      
+      /* Estilos ainda mais específicos para iPhone SE e telas extremamente pequenas */
+      @media (max-width: 320px) {
+        body {
+          padding: 5px 0;
+        }
+        
+        h1 {
+          font-size: 1.5em;
+          margin-bottom: 5px;
+          margin-top: 5px;
+        }
+        
+        .welcome-text {
+          font-size: 0.9em;
+          margin-bottom: 5px;
+        }
+        
+        .buttons {
+          gap: 8px;
+          margin-bottom: 8px;
+          max-width: 250px;
+        }
+        
+        a, .logout-btn {
+          padding: 6px 10px;
+          font-size: 0.9em;
+        }
+        
+        .mini-ranking {
+          padding: 6px;
+          margin: 8px 0;
+        }
+        
+        .mini-ranking h2 {
+          font-size: 1.1em;
+          margin: 0 0 8px 0;
+          padding-bottom: 4px;
+        }
+        
+        .score-entry {
+          padding: 3px 6px;
+          font-size: 0.75em;
+        }
+        
+        .position-medal {
+          width: 16px;
+          height: 16px;
+          font-size: 0.8em;
+        }
+        
+        .player-name {
+          font-size: 0.9em;
+          max-width: 80px;
+        }
+        
+        .player-score {
+          font-size: 0.8em;
+        }
+        
+        .credit {
+          margin-top: 10px;
+          padding-bottom: 3px;
+          font-size: 0.65em;
+        }
+      }
+      
+      /* Estilos para os efeitos de fogo nos nomes */
+      @keyframes flameFlicker {
+        0%, 100% { opacity: 0.8; transform: translateY(0) scale(1); }
+        25% { opacity: 1; transform: translateY(-1px) scale(1.01); }
+        50% { opacity: 0.9; transform: translateY(-2px) scale(1.02); }
+        75% { opacity: 1; transform: translateY(-1px) scale(1.01); }
+      }
+      
+      @keyframes particleFloat {
+        0% { transform: translateY(0) translateX(0); opacity: 1; }
+        50% { transform: translateY(-10px) translateX(var(--move-x, 0)); opacity: 1; }
+        100% { transform: translateY(-20px) translateX(var(--move-x-end, var(--move-x, 0))); opacity: 0; }
+      }
+      
+      @keyframes starTwinkle {
+        0%, 100% { opacity: 0.2; transform: scale(0.8); }
+        50% { opacity: 1; transform: scale(1.2); }
+      }
+      
+      @keyframes glowPulse {
+        0%, 100% { filter: blur(8px) brightness(0.9); }
+        50% { filter: blur(12px) brightness(1.2); }
+      }
+      
+      /* Base para todos os efeitos de fogo */
+      .flame-effect {
+        position: relative;
+        display: inline-block;
+        z-index: 1;
+      }
+      
+      .flame-effect::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        top: 0;
+        border-radius: 8px;
+        filter: blur(10px);
+        opacity: 0.3;
+        z-index: -1;
+        animation: glowPulse 2s infinite;
+      }
+      
+      /* Partículas base para todos os efeitos de fogo */
+      .flame-effect span.particle {
+        position: absolute;
+        bottom: 10%;
+        left: var(--pos-x, 10%);
+        width: var(--size, 4px);
+        height: var(--size, 4px);
+        border-radius: 50%;
+        opacity: 0;
+        transform: translateY(0);
+        animation: particleFloat var(--duration, 1.5s) ease-out infinite;
+        animation-delay: var(--delay, 0s);
+        z-index: 2;
+        filter: blur(1px);
+        box-shadow: 0 0 var(--glow-size, 8px) var(--glow-spread, 4px) var(--color);
+        pointer-events: none;
+      }
+      
+      .flame-effect span.star {
+        position: absolute;
+        bottom: var(--bottom, 30%);
+        left: var(--pos-x, 10%);
+        width: var(--size, 2px);
+        height: var(--size, 2px);
+        background-color: var(--color, white);
+        border-radius: 50%;
+        opacity: 0.6;
+        filter: blur(0.5px);
+        animation: starTwinkle var(--duration, 1.5s) infinite;
+        animation-delay: var(--delay, 0s);
+        z-index: 2;
+        box-shadow: 0 0 var(--glow-size, 3px) var(--glow-spread, 1px) var(--color);
+        pointer-events: none;
+      }
+      
+      /* Primeiro lugar - Fogo vermelho (anteriormente terceiro) */
+      .flame-effect-1 {
+        color: #fff5f5;
+        text-shadow: 
+          0 0 4px rgba(255, 69, 0, 0.7),
+          0 0 8px rgba(255, 0, 0, 0.6),
+          0 0 12px rgba(178, 34, 34, 0.5),
+          0 0 16px rgba(139, 0, 0, 0.4);
+        animation: flameFlicker 1.8s infinite alternate;
+      }
+      
+      .flame-effect-1::after {
+        background: linear-gradient(to right, rgba(255, 69, 0, 0.3), rgba(255, 0, 0, 0.2), rgba(139, 0, 0, 0.1));
+        animation: flameFlicker 1.2s infinite alternate;
+      }
+      
+      /* Partículas vermelhas */
+      .flame-effect-1 .particle-1 {
+        --pos-x: 20%;
+        --move-x: -7px;
+        --move-x-end: -12px;
+        --delay: 0.2s;
+        --color: #ff4500;
+        --size: 5px;
+        --glow-size: 10px;
+        --glow-spread: 5px;
+        --duration: 2s;
+      }
+      
+      .flame-effect-1 .particle-2 {
+        --pos-x: 50%;
+        --move-x: 8px;
+        --move-x-end: 13px;
+        --delay: 0.6s;
+        --color: #ff0000;
+        --size: 6px;
+        --glow-size: 12px;
+        --glow-spread: 6px;
+        --duration: 2.3s;
+      }
+      
+      .flame-effect-1 .particle-3 {
+        --pos-x: 80%;
+        --move-x: -6px;
+        --move-x-end: -10px;
+        --delay: 0.9s;
+        --color: #8b0000;
+        --size: 4px;
+        --glow-size: 8px;
+        --glow-spread: 4px;
+        --duration: 1.7s;
+      }
+      
+      .flame-effect-1 .particle-4 {
+        --pos-x: 35%;
+        --move-x: 7px;
+        --move-x-end: 12px;
+        --delay: 0.3s;
+        --color: #ff4500;
+        --size: 5px;
+        --glow-size: 10px;
+        --glow-spread: 5px;
+        --duration: 2.2s;
+      }
+      
+      .flame-effect-1 .particle-5 {
+        --pos-x: 65%;
+        --move-x: -5px;
+        --move-x-end: -9px;
+        --delay: 0.7s;
+        --color: #ff0000;
+        --size: 3px;
+        --glow-size: 6px;
+        --glow-spread: 3px;
+        --duration: 1.6s;
+      }
+      
+      .flame-effect-1 .particle-6 {
+        --pos-x: 10%;
+        --move-x: 6px;
+        --move-x-end: 11px;
+        --delay: 0.1s;
+        --color: #8b0000;
+        --size: 4px;
+        --glow-size: 8px;
+        --glow-spread: 4px;
+        --duration: 1.9s;
+      }
+      
+      /* Estrelas vermelhas */
+      .flame-effect-1 .star-1 {
+        --pos-x: 25%;
+        --bottom: 6px;
+        --color: #ff4500;
+        --delay: 0.4s;
+        --duration: 1s;
+      }
+      
+      .flame-effect-1 .star-2 {
+        --pos-x: 55%;
+        --bottom: 4px;
+        --color: #ff0000;
+        --delay: 0.8s;
+        --duration: 0.7s;
+      }
+      
+      .flame-effect-1 .star-3 {
+        --pos-x: 85%;
+        --bottom: 5px;
+        --color: #8b0000;
+        --delay: 0.6s;
+        --duration: 1.2s;
+      }
+
+      /* Segundo lugar - Fogo verde e esmeralda */
+      .flame-effect-2 {
+        color: #f0fff0;
+        text-shadow: 
+          0 0 4px rgba(50, 205, 50, 0.7),
+          0 0 8px rgba(0, 128, 0, 0.6),
+          0 0 12px rgba(0, 100, 0, 0.5),
+          0 0 16px rgba(46, 139, 87, 0.4);
+        animation: flameFlicker 2.2s infinite alternate;
+      }
+      
+      .flame-effect-2::after {
+        background: linear-gradient(to right, rgba(50, 205, 50, 0.3), rgba(46, 139, 87, 0.2), rgba(0, 100, 0, 0.1));
+        animation: flameFlicker 1.7s infinite alternate;
+      }
+      
+      /* Partículas verde/esmeralda */
+      .flame-effect-2 .particle-1 {
+        --pos-x: 15%;
+        --move-x: -6px;
+        --move-x-end: -10px;
+        --delay: 0.2s;
+        --color: #32cd32;
+        --size: 5px;
+        --glow-size: 10px;
+        --glow-spread: 5px;
+        --duration: 2.3s;
+      }
+      
+      .flame-effect-2 .particle-2 {
+        --pos-x: 40%;
+        --move-x: 7px;
+        --move-x-end: 11px;
+        --delay: 0.5s;
+        --color: #2e8b57;
+        --size: 6px;
+        --glow-size: 12px;
+        --glow-spread: 6px;
+        --duration: 2.6s;
+      }
+      
+      .flame-effect-2 .particle-3 {
+        --pos-x: 65%;
+        --move-x: -5px;
+        --move-x-end: -9px;
+        --delay: 0.8s;
+        --color: #006400;
+        --size: 4px;
+        --glow-size: 8px;
+        --glow-spread: 4px;
+        --duration: 2s;
+      }
+      
+      .flame-effect-2 .particle-4 {
+        --pos-x: 55%;
+        --move-x: 8px;
+        --move-x-end: 13px;
+        --delay: 0.4s;
+        --color: #32cd32;
+        --size: 5px;
+        --glow-size: 10px;
+        --glow-spread: 5px;
+        --duration: 2.4s;
+      }
+      
+      .flame-effect-2 .particle-5 {
+        --pos-x: 85%;
+        --move-x: -4px;
+        --move-x-end: -8px;
+        --delay: 0.7s;
+        --color: #2e8b57;
+        --size: 3px;
+        --glow-size: 6px;
+        --glow-spread: 3px;
+        --duration: 1.9s;
+      }
+      
+      .flame-effect-2 .particle-6 {
+        --pos-x: 25%;
+        --move-x: 6px;
+        --move-x-end: 10px;
+        --delay: 0.3s;
+        --color: #006400;
+        --size: 4px;
+        --glow-size: 8px;
+        --glow-spread: 4px;
+        --duration: 2.2s;
+      }
+      
+      /* Estrelas verde/esmeralda */
+      .flame-effect-2 .star-1 {
+        --pos-x: 20%;
+        --bottom: 7px;
+        --color: #32cd32;
+        --delay: 0.3s;
+        --duration: 1.1s;
+      }
+      
+      .flame-effect-2 .star-2 {
+        --pos-x: 50%;
+        --bottom: 5px;
+        --color: #2e8b57;
+        --delay: 0.7s;
+        --duration: 0.8s;
+      }
+      
+      .flame-effect-2 .star-3 {
+        --pos-x: 80%;
+        --bottom: 4px;
+        --color: #006400;
+        --delay: 0.5s;
+        --duration: 1.3s;
+      }
+
+      /* Terceiro lugar - Fogo azul e lilás (anteriormente primeiro) */
+      .flame-effect-3 {
+        color: #f0f8ff;
+        text-shadow: 
+          0 0 4px rgba(30, 144, 255, 0.7),
+          0 0 8px rgba(75, 0, 130, 0.6),
+          0 0 12px rgba(128, 0, 128, 0.5),
+          0 0 16px rgba(148, 0, 211, 0.4);
+        animation: flameFlicker 2s infinite alternate;
+      }
+      
+      .flame-effect-3::after {
+        background: linear-gradient(to right, rgba(30, 144, 255, 0.3), rgba(148, 0, 211, 0.2), rgba(75, 0, 130, 0.1));
+        animation: flameFlicker 1.5s infinite alternate;
+      }
+      
+      /* Partículas azul/lilás */
+      .flame-effect-3 .particle-1 {
+        --pos-x: 10%;
+        --move-x: -15px;
+        --move-x-end: -25px;
+        --delay: 0.1s;
+        --color: #1e90ff;
+        --size: 5px;
+        --glow-size: 10px;
+        --glow-spread: 5px;
+        --duration: 2.2s;
+      }
+      
+      .flame-effect-3 .particle-2 {
+        --pos-x: 30%;
+        --move-x: 15px;
+        --move-x-end: 25px;
+        --delay: 0.3s;
+        --color: #9400d3;
+        --size: 6px;
+        --glow-size: 12px;
+        --glow-spread: 6px;
+        --duration: 2.5s;
+      }
+      
+      .flame-effect-3 .particle-3 {
+        --pos-x: 70%;
+        --move-x: -10px;
+        --move-x-end: -20px;
+        --delay: 0.7s;
+        --color: #4b0082;
+        --size: 4px;
+        --glow-size: 8px;
+        --glow-spread: 4px;
+        --duration: 1.9s;
+      }
+      
+      .flame-effect-3 .particle-4 {
+        --pos-x: 50%;
+        --move-x: 10px;
+        --move-x-end: 20px;
+        --delay: 0.5s;
+        --color: #800080;
+        --size: 5px;
+        --glow-size: 10px;
+        --glow-spread: 5px;
+        --duration: 2.3s;
+      }
+      
+      .flame-effect-3 .particle-5 {
+        --pos-x: 90%;
+        --move-x: -4px;
+        --move-x-end: -7px;
+        --delay: 0.9s;
+        --color: #1e90ff;
+        --size: 3px;
+        --glow-size: 6px;
+        --glow-spread: 3px;
+        --duration: 1.8s;
+      }
+      
+      .flame-effect-3 .particle-6 {
+        --pos-x: 20%;
+        --move-x: 5px;
+        --move-x-end: 9px;
+        --delay: 0.2s;
+        --color: #9400d3;
+        --size: 4px;
+        --glow-size: 8px;
+        --glow-spread: 4px;
+        --duration: 2.1s;
+      }
+      
+      /* Estrelas azul/lilás */
+      .flame-effect-3 .star-1 {
+        --pos-x: 15%;
+        --bottom: 5px;
+        --color: #1e90ff;
+        --delay: 0.2s;
+        --duration: 1.2s;
+      }
+      
+      .flame-effect-3 .star-2 {
+        --pos-x: 45%;
+        --bottom: 8px;
+        --color: #9400d3;
+        --delay: 0.6s;
+        --duration: 0.9s;
+      }
+      
+      .flame-effect-3 .star-3 {
+        --pos-x: 75%;
+        --bottom: 3px;
+        --color: #4b0082;
+        --delay: 0.4s;
+        --duration: 1.5s;
       }
     </style>
+    <!-- Verificação de autenticação -->
+    <script type="module">
+      import { isAuthenticated, getCurrentUser, logout, onAuthStateChanged, checkNewPlayer, markIntroductionSeen } from './src/js/services/firebase.js';
+      
+      // Mostrar overlay de carregamento
+      function showLoader() {
+        const overlay = document.createElement('div');
+        overlay.className = 'loading-overlay';
+        overlay.id = 'loadingOverlay';
+        
+        const loader = document.createElement('div');
+        loader.className = 'loader';
+        
+        overlay.appendChild(loader);
+        document.body.appendChild(overlay);
+      }
+      
+      // Esconder overlay de carregamento
+      function hideLoader() {
+        const overlay = document.getElementById('loadingOverlay');
+        if (overlay) {
+          overlay.remove();
+        }
+      }
+      
+      document.addEventListener('DOMContentLoaded', function() {
+        console.log("Página index carregada, verificando autenticação...");
+        
+        // Usar onAuthStateChanged para garantir que o Firebase já verificou a autenticação
+        onAuthStateChanged(async user => {
+          console.log("Estado de autenticação mudou:", user);
+          
+          if (!user) {
+            console.log("Usuário não autenticado, redirecionando para login");
+            // Redirecionar para página de login
+            window.location.href = 'login.html';
+            return;
+          }
+          
+          console.log("Usuário autenticado:", user);
+          
+          // Mostrar loader enquanto verifica se é novo usuário
+          showLoader();
+          
+          try {
+            // Verificar se é um novo jogador ou se nunca viu a introdução
+            
+            // Primeiro verificar o localStorage para evitar loop
+            const hasPlayedFirstGame = localStorage.getItem('hasPlayedFirstGame');
+            if (hasPlayedFirstGame === 'true') {
+              console.log("Usuário já viu a intro (localStorage), continuando normalmente");
+              hideLoader();
+              
+              // Mostrar informações do usuário
+              const userName = user.displayName || 'Ninja';
+              document.getElementById('userWelcome').textContent = `Bem-vindo, ${userName}!`;
+              
+              // Tentar atualizar o perfil no Firebase para evitar futuros redirecionamentos
+              try {
+                markIntroductionSeen(); // Função para atualizar o flag no Firebase
+              } catch (e) {
+                console.error("Erro ao atualizar status de intro no Firebase:", e);
+              }
+              
+              return;
+            }
+            
+            // Se não estiver no localStorage, verificar no Firebase
+            const isNewPlayer = await checkNewPlayer();
+            
+            if (isNewPlayer) {
+              console.log("Novo jogador detectado, redirecionando para introdução");
+              window.location.href = 'intro.html';
+              return;
+            }
+            
+            // Se não for novo jogador, continuar normalmente
+            hideLoader();
+            
+            // Mostrar informações do usuário
+            const userName = user.displayName || 'Ninja';
+            document.getElementById('userWelcome').textContent = `Bem-vindo, ${userName}!`;
+          } catch (error) {
+            console.error("Erro ao verificar se é novo jogador:", error);
+            hideLoader();
+            
+            // Em caso de erro, continuar com a página normalmente
+            const userName = user.displayName || 'Ninja';
+            document.getElementById('userWelcome').textContent = `Bem-vindo, ${userName}!`;
+          }
+        });
+        
+        // Configurar o botão de logout
+        const logoutButton = document.getElementById('logoutButton');
+        
+        // Adicionar eventos para toque e clique
+        const handleLogout = async (e) => {
+          e.preventDefault();
+          showLoader();
+          
+          try {
+            console.log("Iniciando logout...");
+            await logout();
+            console.log("Logout bem-sucedido, redirecionando...");
+            window.location.href = 'login.html';
+          } catch (error) {
+            console.error('Erro ao fazer logout:', error);
+            hideLoader();
+            alert('Erro ao sair da conta. Por favor, tente novamente.');
+          }
+        };
+        
+        logoutButton.addEventListener('click', handleLogout);
+        
+        // Para dispositivos touch, garantir melhor resposta
+        logoutButton.addEventListener('touchstart', function() {
+          logoutButton.classList.add('active');
+        }, { passive: true });
+        
+        logoutButton.addEventListener('touchend', function() {
+          logoutButton.classList.remove('active');
+        }, { passive: true });
+      });
+    </script>
+    <!-- Inicialização do Firebase no escopo global -->
+    <script>
+      // Inicializar Firebase no escopo global para garantir a disponibilidade de todos os serviços
+      window.addEventListener('load', function() {
+        try {
+          // Configuração do Firebase
+          const firebaseConfig = {
+            apiKey: "AIzaSyDzrt3PWm1w38I4n3AZuUMIwjvKFXaVoGg",
+            authDomain: "music-art-djg389.firebaseapp.com",
+            databaseURL: "https://music-art-djg389-default-rtdb.firebaseio.com",
+            projectId: "music-art-djg389",
+            storageBucket: "music-art-djg389.firebasestorage.app",
+            messagingSenderId: "548735106022",
+            appId: "1:548735106022:web:33cf29b68a8b7f3fb7b427"
+          };
+
+          // Inicializar Firebase se ainda não estiver inicializado
+          if (typeof firebase !== 'undefined' && (!firebase.apps || !firebase.apps.length)) {
+            console.log('Inicializando Firebase no escopo global...');
+            firebase.initializeApp(firebaseConfig);
+            console.log('Firebase inicializado no escopo global com sucesso!');
+          }
+          
+          // Verificar explicitamente a disponibilidade do Database
+          setTimeout(function() {
+            console.log('Verificando disponibilidade do Firebase Database explicitamente');
+            if (typeof firebase !== 'undefined') {
+              console.log('Firebase Database disponível?', typeof firebase.database === 'function');
+              
+              // Verificar se o database realmente funciona tentando acessar uma referência
+              if (typeof firebase.database === 'function') {
+                try {
+                  const testRef = firebase.database().ref('test');
+                  console.log('Teste de referência Firebase Database bem-sucedido:', testRef);
+                  window.firebaseDatabaseAvailable = true;
+                } catch (dbError) {
+                  console.error('Erro ao acessar referência Firebase Database:', dbError);
+                  window.firebaseDatabaseUnavailable = true;
+                }
+              } else {
+                console.error('Firebase Database não está disponível como função');
+                window.firebaseDatabaseUnavailable = true;
+              }
+            }
+          }, 1000);
+        } catch (error) {
+          console.error('Erro ao inicializar Firebase no escopo global:', error);
+        }
+      });
+    </script>
   </head>
   <body>
-    <h1>Amaterasu Ninjas</h1>
+    <h1>Amaterasu</h1>
+    <p id="userWelcome" class="welcome-text">Bem-vindo!</p>
     
     <div class="buttons">
-      <a href="intro.html">Iniciar com História</a>
-      <a href="game.html">Jogar Diretamente</a>
+      <a href="game.html">Jogar</a>
       <a href="ranking.html">Ranking</a>
+      <a href="profile.html">Meu Perfil</a>
+      <button id="logoutButton" class="logout-btn">Sair da Conta</button>
     </div>
     
     <div class="mini-ranking">
@@ -229,45 +1086,81 @@
       
       // Prevenir seleção de texto em toda a página
       document.addEventListener('touchstart', function(e) {
-        if (e.target.tagName !== 'A') {
+        if (e.target.tagName !== 'A' && e.target.tagName !== 'BUTTON') {
           e.preventDefault();
         }
       }, { passive: false });
       
-      // Carregar e exibir o mini-ranking
-      function displayMiniRanking() {
-        const topScores = getTopThreeScores();
+      // Substituir a função displayMiniRanking()
+      async function displayMiniRanking() {
         const topScoresContainer = document.getElementById('topScores');
         
-        // Limpar conteúdo atual
-        topScoresContainer.innerHTML = '';
+        // Mostrar loading
+        topScoresContainer.innerHTML = '<div class="empty-ranking">Carregando...</div>';
         
-        if (topScores.length === 0) {
-          topScoresContainer.innerHTML = '<div class="empty-ranking">Seja o primeiro a jogar!</div>';
-          return;
+        try {
+          // Obter dados do Firebase
+          const topScores = await getTopThreeScores();
+          
+          // Limpar conteúdo atual
+          topScoresContainer.innerHTML = '';
+          
+          if (topScores.length === 0) {
+            topScoresContainer.innerHTML = '<div class="empty-ranking">Seja o primeiro a jogar!</div>';
+            return;
+          }
+          
+          // Adicionar cada entrada
+          topScores.forEach(entry => {
+            const scoreEntry = document.createElement('div');
+            
+            // Adicionar classe de efeito de fogo com base na posição diretamente no score-entry
+            scoreEntry.className = `score-entry flame-effect flame-effect-${entry.position}`;
+            
+            // Partículas e estrelas agora pertencem ao score-entry
+            const particles = `
+              <span class="particle particle-1"></span>
+              <span class="particle particle-2"></span>
+              <span class="particle particle-3"></span>
+              <span class="particle particle-4"></span>
+              <span class="particle particle-5"></span>
+              <span class="particle particle-6"></span>
+              <span class="star star-1"></span>
+              <span class="star star-2"></span>
+              <span class="star star-3"></span>
+            `;
+            
+            scoreEntry.innerHTML = `
+              <div class="position-info">
+                <div class="position-medal medal-${entry.position}">${entry.position}</div>
+                <div class="player-name">${entry.name}</div>
+                <div class="player-score">${entry.score} pts</div>
+              </div>
+              ${particles}
+            `;
+            
+            topScoresContainer.appendChild(scoreEntry);
+          });
+        } catch (error) {
+          console.error("Erro ao exibir mini-ranking:", error);
+          topScoresContainer.innerHTML = '<div class="empty-ranking">Erro ao carregar ranking</div>';
         }
-        
-        // Adicionar cada entrada
-        topScores.forEach(entry => {
-          const scoreEntry = document.createElement('div');
-          scoreEntry.className = 'score-entry';
-          
-          scoreEntry.innerHTML = `
-            <div class="position-info">
-              <div class="position-medal medal-${entry.position}">${entry.position}</div>
-              <div class="player-name">${entry.name}</div>
-            </div>
-            <div class="player-score">${entry.score} pts</div>
-          `;
-          
-          topScoresContainer.appendChild(scoreEntry);
-        });
       }
       
       // Inicializar quando o documento estiver pronto
       document.addEventListener('DOMContentLoaded', function() {
         displayMiniRanking();
       });
+    </script>
+    
+    <script src="index.js" type="module"></script>
+    
+    <!-- Script para integração com Lottie -->
+    <script type="module">
+      import { showTreasureAnimation } from './src/js/modules/audio.js';
+      
+      // Expor a função para uso global
+      window.showTreasureAnimation = showTreasureAnimation;
     </script>
   </body>
 </html>

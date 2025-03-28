@@ -28,8 +28,9 @@ export function generateTree() {
 }
 
 export function generatePlatform() {
-  const minimumGap = 40;
-  const maximumGap = 200;
+  // Usar as configurações do gameConfig para definir espaçamentos e dimensões
+  const minimumGap = gameConfig.platformPadding || 40;
+  const maximumGap = gameConfig.platformPadding * 2 || 200;
   const minimumWidth = 20;
   const maximumWidth = 100;
 
@@ -37,15 +38,32 @@ export function generatePlatform() {
   const lastPlatform = platforms[platforms.length - 1];
   let furthestX = lastPlatform.x + lastPlatform.w;
 
+  // Em dispositivos móveis, aumentar a distância entre plataformas
+  let deviceMultiplier = 1;
+  
+  if (window.innerWidth <= 375) {
+    // Para iPhone SE e dispositivos muito pequenos, aumentar significativamente a distância
+    deviceMultiplier = 1.5;  // Aumento de 50%
+  } else if (window.innerWidth <= 768) {
+    // Para outros dispositivos móveis
+    deviceMultiplier = 1.3;  // Aumento de 30%
+  }
+  
   const x =
     furthestX +
-    minimumGap +
-    Math.floor(Math.random() * (maximumGap - minimumGap));
+    (minimumGap * deviceMultiplier) +
+    Math.floor(Math.random() * ((maximumGap - minimumGap) * deviceMultiplier));
+    
+  // Para dispositivos móveis, aumentar um pouco a largura mínima das plataformas
+  const adjustedMinWidth = window.innerWidth <= 768 ? minimumWidth * 1.2 : minimumWidth;
+  
   const w =
-    minimumWidth + Math.floor(Math.random() * (maximumWidth - minimumWidth));
+    adjustedMinWidth + Math.floor(Math.random() * (maximumWidth - adjustedMinWidth));
 
   const newPlatforms = [...platforms, { x, w }];
   updatePlatforms(newPlatforms);
+  
+  console.log(`Nova plataforma criada em x=${x}, largura=${w}, gap=${x-furthestX}, multiplicador=${deviceMultiplier}`);
 }
 
 // Função para gerar estrelas
@@ -63,11 +81,36 @@ export function generateStars() {
 
 // Função para gerar nuvens
 export function generateCloud() {
+  // Detectar se é um dispositivo móvel
+  const isMobileDevice = window.innerWidth <= 768;
+  const isSmallDevice = window.innerWidth <= 375; // iPhone SE e similares
+  
   // Gerar nuvem do lado esquerdo da tela
   const cloudX = -50 - Math.random() * 100; // Posição X à esquerda, fora da tela
-  const cloudY = Math.random() * (window.innerHeight / 2); // Posição Y aleatória no céu
-  const cloudWidth = 40 + Math.random() * 25; // Largura da nuvem aumentada em 5px (era 20)
-  const cloudSpeed = 0.5 + Math.random(); // Velocidade da nuvem
+  
+  // Posição Y aleatória no céu - mais alto em dispositivos móveis para não obstruir a visão
+  const cloudY = Math.random() * (window.innerHeight / (isMobileDevice ? 3 : 2));
+  
+  // Ajustar o tamanho da nuvem para dispositivos móveis
+  let cloudWidthBase, cloudWidthRandom;
+  if (isSmallDevice) {
+    // Dispositivos muito pequenos como iPhone SE
+    cloudWidthBase = 20; // 50% do tamanho original
+    cloudWidthRandom = 15;
+  } else if (isMobileDevice) {
+    // Outros dispositivos móveis
+    cloudWidthBase = 30; // 75% do tamanho original
+    cloudWidthRandom = 20;
+  } else {
+    // Desktop
+    cloudWidthBase = 40;
+    cloudWidthRandom = 25;
+  }
+  
+  const cloudWidth = cloudWidthBase + Math.random() * cloudWidthRandom;
+  
+  // Velocidade da nuvem - um pouco mais rápida em dispositivos móveis para melhor dinâmica
+  const cloudSpeed = 0.5 + Math.random() * (isMobileDevice ? 1.2 : 1);
 
   const newClouds = [...clouds, { 
     x: cloudX, 
@@ -258,4 +301,54 @@ export function getHillY(windowX, baseHeight, amplitude, stretch) {
 export function getTreeY(x, baseHeight, amplitude) {
   const sineBaseY = window.innerHeight - baseHeight;
   return Math.sinus(x) * amplitude + sineBaseY;
-} 
+}
+
+// Solução simples para os flocos de neve sem interferir na animação
+function melhorarFlocosDeNeve() {
+  // Verificar se o herói está congelado
+  if (window.heroFrozen) {
+    // Cores mais intensas para o herói congelado
+    document.documentElement.style.setProperty('--hero-frozen-color', '#80E0FF');
+    
+    // Adicionar mensagem visual de congelado
+    if (!document.querySelector('.frozen-indicator')) {
+      const indicator = document.createElement('div');
+      indicator.className = 'frozen-indicator';
+      indicator.textContent = 'CONGELADO';
+      indicator.style.position = 'absolute';
+      indicator.style.top = '40%';
+      indicator.style.left = '50%';
+      indicator.style.transform = 'translate(-50%, -50%)';
+      indicator.style.color = '#1E90FF';
+      indicator.style.textShadow = '0 0 5px white, 0 0 10px white';
+      indicator.style.fontSize = '24px';
+      indicator.style.fontWeight = 'bold';
+      indicator.style.zIndex = '1000';
+      indicator.style.animation = 'pulse 1s infinite';
+      
+      // Adicionar a animação de pulsação
+      const style = document.createElement('style');
+      style.textContent = `
+        @keyframes pulse {
+          0% { opacity: 0.7; transform: translate(-50%, -50%) scale(1); }
+          50% { opacity: 1.0; transform: translate(-50%, -50%) scale(1.1); }
+          100% { opacity: 0.7; transform: translate(-50%, -50%) scale(1); }
+        }
+      `;
+      document.head.appendChild(style);
+      document.body.appendChild(indicator);
+    }
+  } else {
+    // Remover indicador quando não estiver congelado
+    const indicator = document.querySelector('.frozen-indicator');
+    if (indicator) {
+      document.body.removeChild(indicator);
+    }
+  }
+  
+  // Verificar periodicamente
+  setTimeout(melhorarFlocosDeNeve, 500);
+}
+
+// Iniciar a função
+melhorarFlocosDeNeve(); 

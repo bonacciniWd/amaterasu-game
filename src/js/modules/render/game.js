@@ -10,7 +10,7 @@ import { drawDragon, drawIceRays } from './special.js';
 
 // Imagens
 let castleImage = new Image();
-castleImage.src = '/src/images/castle.png';
+castleImage.src = 'src/images/castle.png';
 
 // Função para desenhar plataformas
 export function drawPlatforms(ctx) {

@@ -9,7 +9,6 @@ import { animate } from './modules/physics.js';
 import { setupInteractionEvents } from './modules/ui.js';
 import { draw, initRenderer } from './modules/render.js';
 import { initPerfectCounter, incrementPerfectCounter, resetPerfectCounter } from './modules/perfectCounter.js';
-import { router } from '../routes/router.js';
 
 // Extend the base functionality of JavaScript
 Array.prototype.last = function () {
@@ -98,19 +97,8 @@ export function initGame() {
 
 // Função para executar quando o DOM estiver carregado
 function onDOMLoaded() {
-  // Verificar se estamos mostrando a tela de história
-  const storyScreen = document.getElementById('story-screen');
-  if (storyScreen && storyScreen.style.display !== 'none') {
-    // Ouvir o evento de início do jogo após a história
-    window.addEventListener('gameStartFromStory', function() {
-      initGameAfterStory();
-      loadSounds();
-      setTimeout(playBackgroundMusic, 1000);
-    });
-  } else {
-    // Inicializar o jogo diretamente
-    initGameAfterStory();
-  }
+  // Inicializar o jogo diretamente
+  initGameAfterStory();
 
   // Configurar eventos de entrada
   setupInputEvents();
@@ -134,25 +122,5 @@ function onDOMLoaded() {
   });
 }
 
-// Inicializar o router quando o DOM estiver pronto
-document.addEventListener('DOMContentLoaded', () => {
-  try {
-    console.log('DOM carregado, inicializando router...');
-    router.init();
-    console.log('Router inicializado!');
-  } catch (error) {
-    console.error('Erro ao inicializar o router:', error);
-    // Mostrar o erro na tela para depuração
-    const errorDiv = document.createElement('div');
-    errorDiv.style.position = 'fixed';
-    errorDiv.style.top = '10px';
-    errorDiv.style.left = '10px';
-    errorDiv.style.backgroundColor = 'rgba(255, 0, 0, 0.8)';
-    errorDiv.style.color = 'white';
-    errorDiv.style.padding = '20px';
-    errorDiv.style.borderRadius = '5px';
-    errorDiv.style.zIndex = '99999';
-    errorDiv.textContent = `Erro: ${error.message} - Stack: ${error.stack}`;
-    document.body.appendChild(errorDiv);
-  }
-}); 
+// Inicializar quando o DOM estiver pronto
+document.addEventListener('DOMContentLoaded', onDOMLoaded); 

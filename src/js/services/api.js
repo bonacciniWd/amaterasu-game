@@ -308,62 +308,9 @@ async function calculateRankingPosition(score) {
  */
 export async function getUserProfile() {
   try {
-    // Primeiro, tentar obter do servidor API
-    const result = await fetchWithAuth('/user/profile');
-    return result;
-  } catch (apiError) {
-    console.log('API não disponível para obter perfil, usando Firebase direto:', apiError);
-    
-    // Fallback: obter diretamente do Firebase
-    try {
-      if (typeof firebase === 'undefined' || !firebase.apps.length) {
-        console.error('Firebase não disponível para fallback');
-        return { 
-          name: 'Usuário Offline', 
-          avatar: null, 
-          email: 'offline@exemplo.com',
-          userId: 'offline-user' 
-        };
-      }
-      
-      // Obter dados do usuário atual
-      const auth = firebase.auth();
-      if (!auth.currentUser) {
-        console.error('Usuário não autenticado para obter perfil');
-        return { 
-          name: 'Usuário Offline', 
-          avatar: null, 
-          email: 'offline@exemplo.com',
-          userId: 'offline-user' 
-        };
-      }
-      
-      const userId = auth.currentUser.uid;
-      const db = firebase.database();
-      
-      // Ler perfil do usuário
-      const profileRef = db.ref(`users/${userId}/profile`);
-      const profileSnapshot = await profileRef.once('value');
-      const profile = profileSnapshot.val() || {};
-      
-      // Ler estatísticas
-      const statsRef = db.ref(`users/${userId}/stats`);
-      const statsSnapshot = await statsRef.once('value');
-      const stats = statsSnapshot.val() || {};
-      
-      // Combinar dados
-      return {
-        name: profile.name || auth.currentUser.displayName || 'Ninja',
-        avatar: profile.photoURL || auth.currentUser.photoURL,
-        email: auth.currentUser.email,
-        userId: userId,
-        stats: {
-          bestScore: stats.bestScore || 0,
-          totalGames: stats.totalGames || 0
-        }
-      };
-    } catch (fbError) {
-      console.error('Erro ao obter perfil do Firebase:', fbError);
+    // Verificar se o usuário está autenticado
+    if (typeof firebase === 'undefined' || !firebase.apps.length || !firebase.auth().currentUser) {
+      console.warn('Usuário não autenticado para obter perfil');
       return { 
         name: 'Usuário Offline', 
         avatar: null, 
@@ -371,6 +318,86 @@ export async function getUserProfile() {
         userId: 'offline-user' 
       };
     }
+    
+    // Primeiro, tentar obter do servidor API
+    try {
+      console.log('Tentando obter perfil via API');
+      const result = await fetchWithAuth('/user/profile');
+      console.log('Perfil obtido via API:', result);
+      return result;
+    } catch (apiError) {
+      console.log('API não disponível para obter perfil, usando Firebase direto:', apiError);
+      // Continuar para o fallback
+    }
+    
+    // Fallback: obter diretamente do Firebase
+    console.log('Obtendo perfil diretamente do Firebase');
+    const auth = firebase.auth();
+    const userId = auth.currentUser.uid;
+    const db = firebase.database();
+    
+    // Ler perfil do usuário
+    console.log('Lendo nó de perfil do usuário:', userId);
+    const profileRef = db.ref(`users/${userId}/profile`);
+    const profileSnapshot = await profileRef.once('value');
+    const profile = profileSnapshot.val() || {};
+    console.log('Dados de perfil obtidos:', profile);
+    
+    // Ler estatísticas
+    console.log('Lendo nó de estatísticas do usuário');
+    const statsRef = db.ref(`users/${userId}/stats`);
+    const statsSnapshot = await statsRef.once('value');
+    const stats = statsSnapshot.val() || {};
+    console.log('Dados de estatísticas obtidos:', stats);
+    
+    // Verificar melhor pontuação
+    let bestScore = 0;
+    
+    if (stats && typeof stats.bestScore === 'number' && stats.bestScore > 0) {
+      bestScore = stats.bestScore;
+    } else if (profile && typeof profile.bestScore === 'number' && profile.bestScore > 0) {
+      bestScore = profile.bestScore;
+    } else {
+      // Se não encontrar em nenhum lugar, verificar nas pontuações individuais
+      console.log('Tentando encontrar pontuação nas entradas individuais');
+      try {
+        const scoresRef = db.ref(`users/${userId}/scores`).orderByChild('score').limitToLast(1);
+        const scoresSnapshot = await scoresRef.once('value');
+        
+        scoresSnapshot.forEach((childSnapshot) => {
+          const scoreData = childSnapshot.val();
+          if (scoreData && scoreData.score > bestScore) {
+            bestScore = scoreData.score;
+          }
+        });
+      } catch (scoresError) {
+        console.error('Erro ao buscar pontuações individuais:', scoresError);
+      }
+    }
+    
+    // Combinar dados
+    const result = {
+      name: profile.name || auth.currentUser.displayName || 'Ninja',
+      avatar: profile.avatar || auth.currentUser.photoURL,
+      email: auth.currentUser.email,
+      userId: userId,
+      bestScore: bestScore,
+      stats: {
+        bestScore: bestScore,
+        totalGames: stats.totalGames || 0
+      }
+    };
+    
+    console.log('Perfil final construído do Firebase:', result);
+    return result;
+  } catch (error) {
+    console.error('Erro ao obter perfil do usuário:', error);
+    return { 
+      name: 'Usuário Offline', 
+      avatar: null, 
+      email: 'offline@exemplo.com',
+      userId: 'offline-user' 
+    };
   }
 }
 

@@ -82,8 +82,14 @@ function buyExtraLife() {
 }
 
 // Reseta o contador apenas quando solicitado explicitamente
-export function resetPerfectCounter() {
-  perfectCount = 0;
+export function resetPerfectCounter(amountToDeduct = 0) {
+  if (amountToDeduct > 0 && amountToDeduct <= perfectCount) {
+    // Se temos um valor para deduzir e ele é menor ou igual ao saldo atual
+    perfectCount -= amountToDeduct;
+  } else if (amountToDeduct === 0) {
+    // Caso não tenha valor para deduzir, zera o contador (comportamento original)
+    perfectCount = 0;
+  }
   updatePerfectCounterDisplay();
   checkPerfectRequirement();
 }

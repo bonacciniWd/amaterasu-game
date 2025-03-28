@@ -4,9 +4,9 @@ import { getHillY, getTreeY } from '../entities.js';
 
 // Imagens
 let castleImage = new Image();
-castleImage.src = '/src/images/castle.png';
+castleImage.src = 'src/images/castle.png';
 let cloudImage = new Image();
-cloudImage.src = '/src/images/cloud.png';
+cloudImage.src = 'src/images/cloud.png';
 
 // Função para desenhar estrelas
 export function drawStars(ctx) {

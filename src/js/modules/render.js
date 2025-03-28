@@ -36,29 +36,22 @@ export function draw() {
 
     drawBackground(ctx);
 
-    // Ajuste para telas menores e mobile
-    let scaleRatio = 1;
-    let translateX, translateY;
+    // Ajustar o posicionamento para centralizar o jogo na tela
+    let translateX = 0 - sceneOffset;
+    let translateY = 0;
     
-    // Verifica se é uma tela pequena (provavelmente mobile)
-    if (window.innerWidth < 768) {
-      // Calcula uma escala melhor para cada dispositivo
-      scaleRatio = Math.min(window.innerWidth / (gameConfig.canvasWidth * 1.1), window.innerHeight / (canvasHeight * 1.2), 1);
-      
-      // Centraliza melhor o conteúdo na tela
-      translateX = (window.innerWidth / 2) - ((gameConfig.canvasWidth * scaleRatio) / 2) - (sceneOffset * scaleRatio);
-      translateY = (window.innerHeight / 2) - ((canvasHeight * scaleRatio) / 2);
-    } else {
-      // Comportamento original para desktop
+    // Garantir que o jogo fique sempre centralizado horizontalmente
+    if (gameConfig.canvasWidth < window.innerWidth) {
       translateX = (window.innerWidth - gameConfig.canvasWidth) / 2 - sceneOffset;
+    }
+    
+    // Centralizar verticalmente apenas se necessário
+    if (canvasHeight < window.innerHeight) {
       translateY = (window.innerHeight - canvasHeight) / 2;
     }
 
     // Aplicar transformações
     ctx.translate(translateX, translateY);
-    if (window.innerWidth < 768) {
-      ctx.scale(scaleRatio, scaleRatio);
-    }
 
     // Draw scene
     drawPlatforms(ctx);

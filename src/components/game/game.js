@@ -80,12 +80,6 @@ export class GameScreen {
     actionButtons.appendChild(restartButton);
     actionButtons.appendChild(buyLifeButton);
 
-    // Créditos
-    const credits = document.createElement('div');
-    credits.id = 'creditos';
-    credits.setAttribute('unselectable', 'on');
-    credits.innerHTML = '<span>Powered by Vrz Studio</span>';
-
     // Botão de som
     // Deixe um comentário anotando a remoção ou desativação
 
@@ -97,7 +91,6 @@ export class GameScreen {
     container.appendChild(mobileButton);
     container.appendChild(touchArea);
     container.appendChild(actionButtons);
-    container.appendChild(credits);
 
     // Adicionar elementos de áudio
     this.createAudioElements(container);

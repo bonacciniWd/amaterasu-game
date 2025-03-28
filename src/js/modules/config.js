@@ -137,12 +137,42 @@ export function setLastRandomFreezeTime(value) {
 }
 
 // Funções para recalcular constantes
-export function recalculateConstants() {
-  gameConfig.canvasWidth = window.innerWidth < 768 ? window.innerWidth - 50 : 375;
-  gameConfig.canvasHeight = window.innerWidth < 768 ? window.innerHeight - 150 : 375;
-  gameConfig.heroDistanceFromEdge = window.innerWidth < 768 ? 5 : 10;
-  gameConfig.paddingX = window.innerWidth < 768 ? 50 : 100;
+export const recalculateConstants = () => {
+  const isMobileDevice = window.innerWidth <= 768;
   
-  // Atualizar a variável canvasHeight quando as constantes são recalculadas
+  // Define a largura e altura do canvas com base no tamanho do dispositivo
+  // Sempre usar toda a largura e altura disponíveis da janela
+  gameConfig.canvasWidth = window.innerWidth;
+  gameConfig.canvasHeight = window.innerHeight;
+  
+  // Atualizar a referência de altura do canvas
   canvasHeight = gameConfig.canvasHeight;
-} 
+  
+  // Ajustar configurações específicas para dispositivos móveis
+  if (isMobileDevice) {
+    // Configurações para mobile mais conservadoras
+    gameConfig.paddingX = Math.max(100, window.innerWidth * 0.25); // 25% da largura da tela
+    gameConfig.platformPadding = Math.floor(window.innerWidth * 0.1); // 10% da largura da tela
+    gameConfig.heroEdgeDistance = Math.min(100, window.innerWidth * 0.12);
+    // Aumentar a altura da plataforma em dispositivos móveis para maior visibilidade
+    gameConfig.platformHeight = Math.floor(Math.min(120, window.innerHeight * 0.15)); // 15% da altura da tela, máximo 120px
+    gameConfig.heroVerticalOffset = 0;
+  } else {
+    // Configurações para desktop
+    gameConfig.paddingX = 200;
+    gameConfig.heroEdgeDistance = 350;
+    gameConfig.platformHeight = 100;
+    gameConfig.platformPadding = 30;
+    gameConfig.heroVerticalOffset = 0;
+  }
+  
+  // Garantir que o nível do chão seja ajustado corretamente
+  gameConfig.groundLevel = gameConfig.canvasHeight - gameConfig.platformHeight;
+  
+  // Para debugging
+  console.log(`Canvas recalculado: ${gameConfig.canvasWidth}x${gameConfig.canvasHeight}, Mobile: ${isMobileDevice}`);
+  console.log(`Configurações da plataforma: altura=${gameConfig.platformHeight}, padding=${gameConfig.platformPadding}, groundLevel=${gameConfig.groundLevel}`);
+  console.log(`Distâncias: paddingX=${gameConfig.paddingX}, heroEdgeDistance=${gameConfig.heroEdgeDistance}`);
+  
+  return gameConfig;
+}; 

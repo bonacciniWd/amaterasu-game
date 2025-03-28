@@ -19,7 +19,13 @@
       background-repeat: no-repeat;
       background-attachment: fixed;
       position: relative;
-      
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Noto Sans JP', sans-serif;
     }
     
     /* Gradiente de sobreposição */
@@ -41,22 +47,28 @@
     .container {
       display: flex;
       flex-direction: column;
-      justify-content: flex-start;
+      justify-content: center;
       align-items: center;
-      min-height: 100vh;
       width: 100%;
       padding: 20px;
       box-sizing: border-box;
+      max-height: 100vh;
     }
     
     h1 {
-      margin-top: 40px;
+      margin-top: 0;
       margin-bottom: 30px;
       color: white;
       text-align: center;
       font-family: 'Cinzel', serif;
       font-size: 2.5em;
       text-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
+      line-height: 1.2;
+    }
+    
+    /* Quebra de linha adicional apenas para dispositivos muito pequenos */
+    h1 br {
+      display: none;
     }
     
     .auth-container {
@@ -72,6 +84,7 @@
       border: 1px solid rgba(255, 255, 255, 0.1);
       position: relative;
       z-index: 1;
+      margin-bottom: 40px;
     }
     
     .auth-tabs {
@@ -204,11 +217,149 @@
       transform: translateY(-2px);
       box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
     }
+    
+    /* Media queries para dispositivos menores */
+    @media (max-height: 700px) {
+      .container {
+        padding: 10px;
+      }
+      
+      h1 {
+        font-size: 2.2em;
+        margin-bottom: 20px;
+      }
+      
+      .auth-container {
+        padding: 20px;
+      }
+      
+      .form-group {
+        margin-bottom: 15px;
+      }
+      
+      .form-group input {
+        padding: 10px 12px;
+      }
+      
+      .auth-btn {
+        padding: 10px;
+      }
+      
+      .back-button {
+        margin-top: 15px;
+      }
+    }
+    
+    /* Estilos específicos para iPhone SE e dispositivos muito pequenos */
+    @media (max-width: 375px) {
+      h1 {
+        font-size: 1.8em;
+        margin-bottom: 15px;
+      }
+      
+      /* Ativar quebra de linha no título para dispositivos pequenos */
+      h1 br {
+        display: inline;
+      }
+      
+      .auth-container {
+        padding: 15px;
+      }
+      
+      .auth-tabs {
+        margin-bottom: 15px;
+      }
+      
+      .auth-tab {
+        padding: 8px;
+        font-size: 0.9em;
+      }
+      
+      .form-group {
+        margin-bottom: 12px;
+      }
+      
+      .form-group label {
+        font-size: 0.85em;
+        margin-bottom: 5px;
+      }
+      
+      .form-group input {
+        padding: 8px 10px;
+        font-size: 0.95em;
+      }
+      
+      .auth-btn {
+        padding: 8px;
+        font-size: 0.95em;
+      }
+      
+      .auth-btn.google {
+        margin-top: 15px;
+      }
+      
+      .back-button {
+        margin-top: 12px;
+        padding: 6px 12px;
+        font-size: 0.9em;
+      }
+    }
+    
+    /* Estilos específicos para iPhone SE (320px) */
+    @media (max-width: 320px) {
+      .container {
+        padding: 8px;
+      }
+      
+      h1 {
+        font-size: 1.6em;
+        margin-bottom: 12px;
+      }
+      
+      .auth-container {
+        padding: 12px;
+        width: 95%;
+      }
+      
+      .auth-tab {
+        padding: 6px;
+        font-size: 0.85em;
+      }
+      
+      .form-group {
+        margin-bottom: 10px;
+      }
+      
+      .form-group input {
+        padding: 7px 10px;
+        font-size: 0.9em;
+      }
+      
+      .auth-btn {
+        padding: 8px;
+        font-size: 0.9em;
+      }
+      
+      .auth-btn.google {
+        font-size: 0.85em;
+      }
+      
+      .auth-btn.google img {
+        width: 20px;
+        height: 20px;
+      }
+      
+      .back-button {
+        margin-top: 10px;
+        padding: 5px 10px;
+        font-size: 0.8em;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="container" style="position: relative; z-index: 2;">
-    <h1>Amaterasu Ninjas</h1>
+    <h1>Amaterasu<br>Ninjas</h1>
     
     <div class="auth-container">
       <div class="auth-tabs">
@@ -258,8 +409,6 @@
       
       <div class="error-message" id="errorMessage"></div>
     </div>
-    
-    <a href="index.html" class="back-button">Voltar ao Menu</a>
   </div>
   
   <script type="module">
@@ -362,10 +511,34 @@
         // Atualizar o nome de exibição do usuário
         await updateProfile({ displayName });
         
-        // Redirecionar para o menu principal
-        window.location.href = 'index.html';
+        // IMPORTANTE: Marcar explicitamente como usuário novo no registro
+        localStorage.removeItem('hasPlayedFirstGame');
+        
+        // Adicionar timestamp para indicar que é um usuário recém-registrado
+        // Usar valor numérico para facilitar comparações
+        localStorage.setItem('userRegisteredAt', Date.now().toString());
+        
+        // Marcar explicitamente como usuário que precisa ver a introdução
+        localStorage.setItem('forceIntro', 'true');
+        
+        // Limpar quaisquer flags que possam interferir
+        localStorage.removeItem('introRedirectCount');
+        localStorage.removeItem('indexRedirectCount');
+        localStorage.removeItem('introCompleted');
+        localStorage.removeItem('comingFromGame');
+        
+        console.log('Usuário registrado com sucesso!');
+        console.log('Redirecionando para introdução em 1.5 segundos...');
+        
+        // Redirecionar diretamente para a página de introdução
+        setTimeout(() => {
+          window.location.replace('intro.html');
+        }, 1500); // Pequeno delay para mostrar a mensagem de sucesso
       } catch (error) {
-        showError(error.message);
+        console.error('Erro ao importar firebase:', error);
+        showError('Houve um erro ao criar sua conta. Tente novamente.');
+        document.getElementById('registerButton').innerText = 'Criar Conta';
+        document.getElementById('registerButton').disabled = false;
       }
     });
     

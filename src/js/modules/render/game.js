@@ -92,13 +92,13 @@ export function draw(ctx) {
     drawBackground(ctx);
 
     // Ajuste para telas menores e mobile
-    let scaleRatio = 1;
+    let scaleRatio = 0.90;
     let translateX, translateY;
     
     // Verifica se é uma tela pequena (provavelmente mobile)
     if (window.innerWidth < 768) {
       // Calcula uma escala melhor para cada dispositivo
-      scaleRatio = Math.min(window.innerWidth / (gameConfig.canvasWidth * 1.1), window.innerHeight / (canvasHeight * 1.2), 1);
+      scaleRatio = Math.min(window.innerWidth / (gameConfig.canvasWidth * 1), window.innerHeight / (canvasHeight * 1.2), 1);
       
       // Centraliza melhor o conteúdo na tela
       translateX = (window.innerWidth / 2) - ((gameConfig.canvasWidth * scaleRatio) / 2) - (sceneOffset * scaleRatio);

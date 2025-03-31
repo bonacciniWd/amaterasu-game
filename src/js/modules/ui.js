@@ -107,6 +107,7 @@ generatePlatform();
 generatePlatform();
 generatePlatform();
 generatePlatform();
+generatePlatform();
 
 const initialSticks = [{ x: platforms[0].x + platforms[0].w, length: 0, rotation: 0 }];
 updateSticks(initialSticks);

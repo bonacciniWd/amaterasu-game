@@ -25,8 +25,8 @@ export const gameConfig = {
   fallingSpeed: 2,
   
   // Herói
-  heroWidth: 28,
-  heroHeight: 56,
+  heroWidth: 24,
+  heroHeight: 40,
 };
 
 // Variáveis de estado global

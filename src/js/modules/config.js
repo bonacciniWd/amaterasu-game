@@ -7,7 +7,7 @@ export const gameConfig = {
   heroDistanceFromEdge: window.innerWidth < 768 ? 5 : 10,
   paddingX: window.innerWidth < 768 ? 50 : 100,
   perfectAreaSize: 10,
-  backgroundSpeedMultiplier: 0.2,
+  backgroundSpeedMultiplier: 0,
   
   // Configurações de altura das colinas
   hill1BaseHeight: 100,
@@ -25,8 +25,8 @@ export const gameConfig = {
   fallingSpeed: 2,
   
   // Herói
-  heroWidth: 24,
-  heroHeight: 40,
+  heroWidth: 28,
+  heroHeight: 56,
 };
 
 // Variáveis de estado global
@@ -155,7 +155,7 @@ export const recalculateConstants = () => {
     gameConfig.platformPadding = Math.floor(window.innerWidth * 0.1); // 10% da largura da tela
     gameConfig.heroEdgeDistance = Math.min(100, window.innerWidth * 0.12);
     // Aumentar a altura da plataforma em dispositivos móveis para maior visibilidade
-    gameConfig.platformHeight = Math.floor(Math.min(120, window.innerHeight * 0.15)); // 15% da altura da tela, máximo 120px
+    gameConfig.platformHeight = Math.floor(Math.min(120, window.innerHeight * 0.25)); // 15% da altura da tela, máximo 120px
     gameConfig.heroVerticalOffset = 0;
   } else {
     // Configurações para desktop

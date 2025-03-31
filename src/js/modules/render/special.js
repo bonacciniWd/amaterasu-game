@@ -24,8 +24,8 @@ export function drawDragon(ctx) {
   if (dragonY < 90) setDragonDirection(1);   // Aumentado de 80 para 90
   
   // Aumentando as dimensões do dragão em 40px
-  const dragonWidth = 120; // Antes era 80
-  const dragonHeight = 100; // Antes era 60
+  const dragonWidth = 80; // Antes era 80
+  const dragonHeight = 60; // Antes era 60
   
   ctx.save();
   ctx.setTransform(1, 0, 0, 1, 0, 0);

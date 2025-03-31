@@ -92,7 +92,7 @@ export function draw(ctx) {
     drawBackground(ctx);
 
     // Ajuste para telas menores e mobile
-    let scaleRatio = 0.90;
+    let scaleRatio = 1.1;
     let translateX, translateY;
     
     // Verifica se é uma tela pequena (provavelmente mobile)
